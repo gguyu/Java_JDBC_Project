@@ -39,14 +39,12 @@ public class testWB3 {
 	// 검색 범위: combobox 나 textfield 에서 받아올 것임, default 는 전체이므로 초기값은 null
 	private JButton btnSearch;
 	
+	// JTable 만들 때 쓸 model
 	private DefaultTableModel tableModel;
-	
-	
-	
 	
 
 	/**
-	 * Launch the application.
+	 * 앱 실행
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -63,14 +61,14 @@ public class testWB3 {
 	
 
 	/**
-	 * Create the application.
+	 * 앱 생성
 	 */
 	public testWB3() {
 		initialize();
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * 초기 설정
 	 */
 	private void initialize() {
 		frame = new JFrame();
