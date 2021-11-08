@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class testWB3 {
 
-   private JFrame frame, framePw;
+   private JFrame frame, frameLogin;
    
    private JTextField textField_salary;  // 연봉 검색창 객체
    private JTextField textField_sub; // 부하직원 검색창 객체
@@ -61,19 +61,19 @@ public class testWB3 {
       initialize();
    }
    
-   // password 창 띄우기 11/9 01:06 수정사항 -황규진 - initialize() 함수 초반에 실행
-   private void passwordFrame() {
-	   	framePw = new JFrame();
-	   	framePw.setBounds(100, 100, 301, 154);
-	   	framePw.getContentPane().setLayout(null);
-	   	framePw.setLocationRelativeTo(null);
+   // Login 창 띄우기 11/9 01:06 수정사항 -황규진 - initialize() 함수 초반에 실행
+   private void loginFrame() {
+	   	frameLogin = new JFrame();
+	   	frameLogin.setBounds(100, 100, 301, 154);
+	   	frameLogin.getContentPane().setLayout(null);
+	   	frameLogin.setLocationRelativeTo(null);
 	   	// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 이게 있으면 창닫았을 때 꺼짐.
-	   	framePw.setVisible(true);
-	   	framePw.setAlwaysOnTop(true);  // 창을 맨 앞에 나오게 함
+	   	frameLogin.setVisible(true);
+	   	frameLogin.setAlwaysOnTop(true);  // 창을 맨 앞에 나오게 함
 	   	
 	   	JPanel panelPw = new JPanel();
 		panelPw.setBounds(0, 0, 285, 115);
-		framePw.getContentPane().add(panelPw);
+		frameLogin.getContentPane().add(panelPw);
 		panelPw.setLayout(null);
 		
 		JLabel lblTitleLabel = new JLabel("MySQL Login");
@@ -113,7 +113,7 @@ public class testWB3 {
 				if (!textField_Password.getText().equals(emptyPassword)) {
 					password = textField_Password.getText();
 					System.out.println(password);
-					framePw.dispose();
+					frameLogin.dispose();
 					
 				} else {
 					System.out.println("password 를 입력해주세요");
@@ -121,7 +121,7 @@ public class testWB3 {
 				
 			}
 		});
-   }  // password 창 끝
+   }  // Login 창 끝
    
    
    
@@ -137,7 +137,7 @@ public class testWB3 {
       frame.getContentPane().setLayout(null);
       
       // password 창 띄우기
-      passwordFrame();
+      loginFrame();
       
       // 검색 조건 panel
       JPanel panel = new JPanel();
