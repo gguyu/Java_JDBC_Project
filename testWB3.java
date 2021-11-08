@@ -8,6 +8,8 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashSet;
+import java.util.Set;
 
 public class testWB3 {
 
@@ -16,6 +18,7 @@ public class testWB3 {
    private JTextField textField_salary;  // 연봉 검색창 객체
    private JTextField textField_sub; // 부하직원 검색창 객체
    private JTable dataTable;  // DB table 객체
+   private JPanel panel_1;
    
    // 검색 항목: checkbox 에서 받아올 것임
    private String selectStatement;
@@ -24,8 +27,9 @@ public class testWB3 {
    private String[] selectAttribute;
    // 검색 범위: combobox 나 textfield 에서 받아올 것임, default 는 전체이므로 초기값은 null
    private JButton btnSearch;
-   
+   private JLabel selectedEmpLb, selectedCountLb;
    private DefaultTableModel tableModel;
+   private Set<String> selectedEmp;
    
    
    
@@ -495,18 +499,7 @@ public class testWB3 {
             }
             
             selectStatement = selectStatement + fromStatement;
-            
-            /*
-            // 체크박스 실험
-            Class[] columnTypes = new Class[columnCnt];
-            int type_Cnt = 1;
-            columnTypes[0] = Boolean.class;
-            while (type_Cnt < columnCnt) {
-               columnTypes[type_Cnt] =Object.class;
-               type_Cnt++;
-            }
-            */
-            
+                    
             // table 만들기
             CompanyDB companyDB = new CompanyDB(selectStatement, whereClause, columnCnt + 1);
             
@@ -523,7 +516,26 @@ public class testWB3 {
             dataTable.getColumn("선택").setCellRenderer(dcr);
             JCheckBox checkBox = new JCheckBox();
             checkBox.setHorizontalAlignment(JLabel.CENTER);
+            
+            // 선택한 직원, 인원 수
+            selectedEmp = new HashSet<>();
             dataTable.getColumn("선택").setCellEditor(new DefaultCellEditor(checkBox));
+            checkBox.addActionListener(new ActionListener() {
+            	@Override
+            	public void actionPerformed(ActionEvent e) {
+            		String selected = dataTable.getValueAt(dataTable.getSelectedRow(), 1).toString();
+            		if(selectedEmp.contains(selected)) {
+            			selectedEmp.remove(selected);
+            		} else {
+            			selectedEmp.add(selected);
+            		}
+            		selectedEmpLb.setText("선택한 직원 : " + selectedEmp);
+            		selectedCountLb.setText("인원 수 :" + selectedEmp.size());
+            		panel_1.revalidate();
+            	}
+            });
+            
+            
          }
       });
       
@@ -531,49 +543,50 @@ public class testWB3 {
       fromStatement = null;
       whereClause = null;
       
-      
-      // table 내에 check 박스 구현해야함.
-      
       // table 보이기 끝
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
+
       // 삽입, 삭제, 갱신 panel
-      JPanel panel_1 = new JPanel();
+      panel_1 = new JPanel();
       panel_1.setBounds(0, 376, 986, 97);
       frame.getContentPane().add(panel_1);
       panel_1.setLayout(null);
       
+      selectedEmpLb = new JLabel();
+      selectedEmpLb.setText("선택한 직원 :");
+      selectedEmpLb.setBounds(14, 12, 1000, 18);
+      panel_1.add(selectedEmpLb);
+      
+      selectedCountLb = new JLabel();
+      selectedCountLb.setText("인원 수 :");
+      selectedCountLb.setBounds(14, 42, 100, 18);
+      panel_1.add(selectedCountLb);
+      
+      
+      
+      
       // 삽입 버튼
       JButton btnInsertDisp = new JButton("새로운 데이터 삽입");  // 버튼 누르면 삽입하는 새로운 레이아웃 보여줌
+      btnInsertDisp.setBounds(815, 10, 145, 23);
+      panel_1.add(btnInsertDisp);
       btnInsertDisp.addActionListener(new ActionListener() {
+    	 @Override
          public void actionPerformed(ActionEvent e) {
-            InsertSetting insertSetting = new InsertSetting();  // 삽입 레이아웃 객체 생성해서 창 띄움
+        	InsertSetting insertSetting = new InsertSetting();  // 삽입 레이아웃 객체 생성해서 창 띄움
             insertSetting.launch();
          }
       });
-      btnInsertDisp.setBounds(815, 10, 145, 23);
-      panel_1.add(btnInsertDisp);
       
       // 삭제 버튼
-      btnInsertDisp.setBounds(815, 10, 145, 23);
-      panel_1.add(btnInsertDisp);
-
       JButton btnDeleteDisp = new JButton("선택한 데이터 삭제"); // 버튼 누르면 선택한 직원의 정보를 DB에서 삭제
-      btnDeleteDisp.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
-
-         }
-      });
       btnDeleteDisp.setBounds(815, 40, 145, 23);
       panel_1.add(btnDeleteDisp);
+      btnDeleteDisp.addActionListener(new ActionListener() {
+    	 @Override
+         public void actionPerformed(ActionEvent e) {
+    		 // delete From employee where selectedEmp에 속한 경우
+         }
+      });
+      
 
       
       // 갱신 버튼
@@ -581,15 +594,34 @@ public class testWB3 {
       lblNewLabel_6.setBounds(311, 40, 45, 18);
       panel_1.add(lblNewLabel_6);
 
-      JComboBox comboBox_2 = new JComboBox();
-      comboBox_2.setModel(new DefaultComboBoxModel(new String[] { "Address", "Sex", "Salary" }));
-      comboBox_2.setBounds(359, 40, 82, 24);
-      panel_1.add(comboBox_2);
+      JComboBox comboBox_update = new JComboBox();
+      comboBox_update.setModel(new DefaultComboBoxModel(new String[] { "Address", "Sex", "Salary" }));
+      comboBox_update.setBounds(359, 40, 82, 24);
+      panel_1.add(comboBox_update);
 
       JTextField textField = new JTextField();
       textField.setBounds(443, 40, 116, 24);
       panel_1.add(textField);
       textField.setColumns(10);
+      
+      JButton btnUpdate = new JButton("Update");
+      btnUpdate.setBounds(560, 40, 80, 24);
+      panel_1.add(btnUpdate);
+      btnUpdate.addActionListener(new ActionListener() {
+    	  @Override
+    	  public void actionPerformed(ActionEvent e) {
+    		  if (comboBox_update.getSelectedItem() == "Address") {
+    			  // update employee set address = textField.getText()
+    		  } else if (comboBox_update.getSelectedItem() == "Sex") {
+    			  // update employee set sex = textFiled.getText()
+    		  } else if (comboBox_update.getSelectedItem() == "Salary") {
+    			  
+    		  }
+    		  
+    		  // 객체 생성 + 수정연산
+    		  
+    	  }
+      });
       
       
       
@@ -602,6 +634,14 @@ public class testWB3 {
          JCheckBox box = new JCheckBox();
          box.setSelected(((Boolean) value).booleanValue());
          box.setHorizontalAlignment(JLabel.CENTER);
+         
+         box.addMouseListener(new MouseAdapter() {
+        	 @Override
+             public void mouseClicked(MouseEvent e) {
+        		 System.out.println("s");
+        	 }
+         });
+         
          return box;
       }
    };
