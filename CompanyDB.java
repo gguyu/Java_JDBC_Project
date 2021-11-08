@@ -7,6 +7,12 @@ public class CompanyDB {
 	private Statement stmt = null;  // Statement 객체
 	private PreparedStatement pstmt = null;  // PreparedStatement 객체
 	
+	// 접속 url 과 사용자, 비밀번호
+	private String url="jdbc:mysql://localhost:3306/COMPANY?serverTimezon=UTC";
+	private String user="root";
+	private String pwd;
+	
+	
 	// query 조합
 	private String queryWhere = " where";
 	private String andText =" and";
@@ -35,21 +41,24 @@ public class CompanyDB {
 	
 	
 	// 검색 질의 생성자
-	public CompanyDB(String selectQuery, String whereQuery, int select_columns) {
+	public CompanyDB(String selectQuery, String whereQuery, int select_columns, String password) {
 		this.selectQuery = selectQuery;
 		this.whereQuery = whereQuery;
 		this.select_columns = select_columns;
+		pwd = password;
 	}
 	
 	// 삽입문 생성자
-	public CompanyDB(String insertQuery) {
+	public CompanyDB(String insertQuery, String password) {
 		this.insertQuery = insertQuery;
+		pwd = password;
 	}
 	
 	// 삭제문 생성자
-	public CompanyDB(String[] deleteEssn, int cntEssn) {
+	public CompanyDB(String[] deleteEssn, int cntEssn, String password) {
 		this.deleteESsn = deleteEssn;
 		this.cntEssn = cntEssn;
+		pwd = password;
 	}
 	
 	
@@ -59,11 +68,6 @@ public class CompanyDB {
 		ResultSet rs;
 		
 		try {
-			// 접속 url 과 사용자, 비밀번호
-			String url="jdbc:mysql://localhost:3306/COMPANY?serverTimezon=UTC";
-			String user="root";
-			String pwd="root";
-			
 			// url 과 사용자, 비밀번호로 Connection 객체 생성
 			con = DriverManager.getConnection(url,user,pwd);
 			System.out.println("정상적으로 연결되었습니다.");
@@ -139,11 +143,6 @@ public class CompanyDB {
 	public void insertDB() {
 		
 		try {
-			// 접속 url 과 사용자, 비밀번호
-			String url="jdbc:mysql://localhost:3306/COMPANY?serverTimezon=UTC";
-			String user="root";
-			String pwd="root";
-			
 			// url 과 사용자, 비밀번호로 Connection 객체 생성
 			con = DriverManager.getConnection(url,user,pwd);
 			System.out.println("정상적으로 연결되었습니다.");
@@ -177,11 +176,6 @@ public class CompanyDB {
 	public void deleteDB() {
 		
 		try {
-			// 접속 url 과 사용자, 비밀번호
-			String url="jdbc:mysql://localhost:3306/COMPANY?serverTimezon=UTC";
-			String user="root";
-			String pwd="root";
-			
 			// url 과 사용자, 비밀번호로 Connection 객체 생성
 			con = DriverManager.getConnection(url,user,pwd);
 			System.out.println("정상적으로 연결되었습니다.");

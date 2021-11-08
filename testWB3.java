@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class testWB3 {
 
-   private JFrame frame;
+   private JFrame frame, framePw;
    
    private JTextField textField_salary;  // 연봉 검색창 객체
    private JTextField textField_sub; // 부하직원 검색창 객체
@@ -33,8 +33,9 @@ public class testWB3 {
    private Set<String> selectedEmp, selectedSsn;
    
    
-   
-   
+   private String password = "root";  // 비밀번호 선택 창 입력안하고 끄면 우선 default 로 root
+   private JTextField textField_Password;
+  
 
    /**
     * Launch the application.
@@ -59,16 +60,84 @@ public class testWB3 {
    public testWB3() {
       initialize();
    }
-
+   
+   // password 창 띄우기 11/9 01:06 수정사항 -황규진 - initialize() 함수 초반에 실행
+   private void passwordFrame() {
+	   	framePw = new JFrame();
+	   	framePw.setBounds(100, 100, 301, 154);
+	   	framePw.getContentPane().setLayout(null);
+	   	framePw.setLocationRelativeTo(null);
+	   	// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 이게 있으면 창닫았을 때 꺼짐.
+	   	framePw.setVisible(true);
+	   	framePw.setAlwaysOnTop(true);  // 창을 맨 앞에 나오게 함
+	   	
+	   	JPanel panelPw = new JPanel();
+		panelPw.setBounds(0, 0, 285, 115);
+		framePw.getContentPane().add(panelPw);
+		panelPw.setLayout(null);
+		
+		JLabel lblTitleLabel = new JLabel("MySQL Login");
+		lblTitleLabel.setFont(new Font("굴림", Font.BOLD, 16));
+		lblTitleLabel.setBounds(81, 10, 113, 24);
+		panelPw.add(lblTitleLabel);
+		
+		JLabel lblIdLabel = new JLabel("ID");
+		lblIdLabel.setBounds(29, 44, 41, 15);
+		panelPw.add(lblIdLabel);
+		
+		JLabel lblIdRootLabel = new JLabel("root");
+		lblIdRootLabel.setBounds(81, 44, 57, 15);
+		panelPw.add(lblIdRootLabel);
+		
+		JLabel lblPwLabel = new JLabel("PW");
+		lblPwLabel.setBounds(29, 69, 41, 15);
+		panelPw.add(lblPwLabel);
+		
+		textField_Password = new JTextField();
+		textField_Password.setBounds(78, 66, 116, 21);
+		panelPw.add(textField_Password);
+		textField_Password.setColumns(10);
+		
+		JLabel lblPwtelLabel = new JLabel("Password 를 정확히 입력하세요");
+		lblPwtelLabel.setForeground(Color.RED);
+		lblPwtelLabel.setBounds(52, 100, 177, 15);
+		panelPw.add(lblPwtelLabel);
+		
+		// 로그인 버튼을 누르면 로그인 창 닫음 (비밀번호가 입력이 안되어있으면 입력할 때까지 안닫힘)
+		JButton btnLogin = new JButton("Login");
+		btnLogin.setBounds(206, 44, 67, 43);
+		panelPw.add(btnLogin);
+		btnLogin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String emptyPassword ="";
+				if (!textField_Password.getText().equals(emptyPassword)) {
+					password = textField_Password.getText();
+					System.out.println(password);
+					framePw.dispose();
+					
+				} else {
+					System.out.println("password 를 입력해주세요");
+				}
+				
+			}
+		});
+   }  // password 창 끝
+   
+   
+   
    /**
     * Initialize the contents of the frame.
     */
    private void initialize() {
+	   
       frame = new JFrame();
       frame.getContentPane().setForeground(SystemColor.desktop);
       frame.setBounds(100, 100, 1002, 512);
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.getContentPane().setLayout(null);
+      
+      // password 창 띄우기
+      passwordFrame();
       
       // 검색 조건 panel
       JPanel panel = new JPanel();
@@ -336,19 +405,13 @@ public class testWB3 {
       btnSearch.setBounds(837, 42, 107, 30);
       panel.add(btnSearch);
       
-      
       // table 생성
       tableModel = new DefaultTableModel();
       dataTable = new JTable(tableModel);
       JScrollPane scrollPane = new JScrollPane(dataTable);
       frame.getContentPane().add(scrollPane);
-      
       scrollPane.setViewportView(dataTable);
       scrollPane.setBounds(10, 96, 964, 277);
-      
-      
-      
-      
       
       btnSearch.addMouseListener(new MouseAdapter() {
          String emptyText = "";  // textfield 가 비어있는지 비교 용도
@@ -506,7 +569,7 @@ public class testWB3 {
             selectedCountLb.setText("인원 수 :");
                     
             // table 만들기
-            CompanyDB companyDB = new CompanyDB(selectStatement, whereClause, columnCnt + 1);
+            CompanyDB companyDB = new CompanyDB(selectStatement, whereClause, columnCnt + 1, password);
             
             int cntRowModel = tableModel.getRowCount();
             int cntRowM = 0;
@@ -590,7 +653,7 @@ public class testWB3 {
       btnInsertDisp.addActionListener(new ActionListener() {
     	 @Override
          public void actionPerformed(ActionEvent e) {
-        	InsertSetting insertSetting = new InsertSetting();  // 삽입 레이아웃 객체 생성해서 창 띄움
+        	InsertSetting insertSetting = new InsertSetting(password);  // 삽입 레이아웃 객체 생성해서 창 띄움
             insertSetting.launch();
          }
       });
@@ -617,16 +680,13 @@ public class testWB3 {
         		 }
         		 
         		 // sql 객체 생성 (생성자에 deleteSsn array 와 cntDeleteSsn 넘겨주기 / cntDelete 만큼 deleteQuery[i] 삭제 반복 수행
-        		 
-        		 CompanyDB companyDB = new CompanyDB(deleteSsn, cntDeleteSsn);
+        		 CompanyDB companyDB = new CompanyDB(deleteSsn, cntDeleteSsn,password);
         		 companyDB.deleteDB();
         		 System.out.println(selectedSsn.size());
         		 
-        		 
-        		 
     		 }
     		 
-    		 // 예외처리되면 에러메세지만 출력, 정상적으로 작동되면 delete 연산 수행 완료
+    		 // 예외처리되면 에러메세지만 출력, 정상적으로 작동되면 delete 연산 수행 완료 예외처리 만들기
     		 
          }
       });

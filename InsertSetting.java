@@ -29,6 +29,7 @@ public class InsertSetting {
 	private JTextField textField_insertSup_ssn;
 	private JTextField textField_insertDno;
 	
+	private String password;
 	private String insertQuery = "insert into EMPLOYEE value("; // insert 문 저장, 안에 다 넣고 마지막에 sql 실행전에 ')' 더해주기
 	private String insertedSex = "M";  // combobox의 default 값이 M이므로
 
@@ -55,7 +56,7 @@ public class InsertSetting {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					InsertSetting window = new InsertSetting();
+					InsertSetting window = new InsertSetting(password);
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -68,7 +69,8 @@ public class InsertSetting {
 	/**
 	 * Create the application.
 	 */
-	public InsertSetting() {
+	public InsertSetting(String password) {
+		this.password = password;
 		initialize();
 	}
 
@@ -254,7 +256,7 @@ public class InsertSetting {
 				System.out.println(insertQuery);
 				
 				// CompanyDB 객체 생성해서 생성자로 insertQuery 넘겨줘서 삽입 쿼리 실행하기
-				CompanyDB companyDB_insert = new CompanyDB(insertQuery);
+				CompanyDB companyDB_insert = new CompanyDB(insertQuery, password);
 				companyDB_insert.insertDB();
 				
 				// 쿼리문 초기화
