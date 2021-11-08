@@ -64,7 +64,7 @@ public class testWB3 {
    // Login 창 띄우기 11/9 01:06 수정사항 -황규진 - initialize() 함수 초반에 실행
    private void loginFrame() {
 	   	frameLogin = new JFrame();
-	   	frameLogin.setBounds(100, 100, 301, 154);
+	   	frameLogin.setBounds(100, 100, 310, 180);
 	   	frameLogin.getContentPane().setLayout(null);
 	   	frameLogin.setLocationRelativeTo(null);
 	   	// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 이게 있으면 창닫았을 때 꺼짐.
@@ -93,14 +93,14 @@ public class testWB3 {
 		lblPwLabel.setBounds(29, 69, 41, 15);
 		panelPw.add(lblPwLabel);
 		
-		textField_Password = new JTextField();
+		textField_Password = new JPasswordField();
 		textField_Password.setBounds(78, 66, 116, 21);
 		panelPw.add(textField_Password);
 		textField_Password.setColumns(10);
 		
 		JLabel lblPwtelLabel = new JLabel("Password 를 정확히 입력하세요");
 		lblPwtelLabel.setForeground(Color.RED);
-		lblPwtelLabel.setBounds(52, 100, 177, 15);
+		lblPwtelLabel.setBounds(52, 100, 250, 15);
 		panelPw.add(lblPwtelLabel);
 		
 		// 로그인 버튼을 누르면 로그인 창 닫음 (비밀번호가 입력이 안되어있으면 입력할 때까지 안닫힘)

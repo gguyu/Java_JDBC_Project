@@ -207,50 +207,80 @@ public class InsertSetting {
 			String spaceWord = ", ";	// insertQuery 에 추가하기 전에 한 칸 띄어쓰기 해야됌.
 			String stringWord = "'"; 	// insertQuery 에 string 삽입하면 ' 를 양 옆에 붙여줘야함.
 			String endQuery = ")"; 		// insert 문 마지막은 value 의 괄호를 닫아줘야함
+			String nullText = "NULL";   // 값을 따로 입력안하면 NULL 로 집어넣음
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				// textField.getText() 는 textField가 empty 이면 "" 반환해줌
 				// Fname (not null)
 				if (textField_insertFname.getText().equals(emptyText)) {
 					// 에러발생 , 창띄우고 실행 x
-					System.out.println("Fname has not null constraints");
+					System.out.println("Fname has NOT NULL constraints");
+				} else {
+					insertQuery = insertQuery + stringWord + textField_insertFname.getText() + stringWord;
 				}
-				insertQuery = insertQuery + stringWord + textField_insertFname.getText() + stringWord;
+				
 				
 				// Minit
-				insertQuery = insertQuery + spaceWord + stringWord + textField_insertMinit.getText() + stringWord;
+				if (textField_insertMinit.getText().equals(emptyText)) {
+					insertQuery = insertQuery + spaceWord + nullText;
+				} else {
+					insertQuery = insertQuery + spaceWord + stringWord + textField_insertMinit.getText() + stringWord;
+				}
 				
 				// Lname (not null)
 				if (textField_insertLname.getText().equals(emptyText)) {
 					// 에러발생 , 창띄우고 실행 x
-					System.out.println("Lname has not null constraints");
+					System.out.println("Lname has NOT NULL constraints");
+				} else {
+					insertQuery = insertQuery + spaceWord + stringWord + textField_insertLname.getText() + stringWord;
 				}
-				insertQuery = insertQuery + spaceWord + stringWord + textField_insertLname.getText() + stringWord;
 				
 				// Ssn (not null, primary key)
 				if (textField_insertSsn.getText().equals(emptyText)) {
-					// 에러발생 , 창띄우고 실행 x
-					System.out.println("Ssn has not null constraints (primary key)");
+					insertQuery = insertQuery + spaceWord + nullText;
+				} else {
+					insertQuery = insertQuery + spaceWord + stringWord + textField_insertSsn.getText() + stringWord;
 				}
-				insertQuery = insertQuery + spaceWord + stringWord + textField_insertSsn.getText() + stringWord;
 				
 				// Bdate
-				insertQuery = insertQuery + spaceWord + stringWord + textField_insertBdate.getText() + stringWord;
+				if (textField_insertBdate.getText().equals(emptyText)) {
+					insertQuery = insertQuery + spaceWord + nullText;
+				} else {
+					insertQuery = insertQuery + spaceWord + stringWord + textField_insertBdate.getText() + stringWord;
+				}
 				
 				// Address
-				insertQuery = insertQuery + spaceWord + stringWord + textField_insertAddress.getText() + stringWord;
+				if (textField_insertAddress.getText().equals(emptyText)) {
+					insertQuery = insertQuery + spaceWord + nullText;
+				} else {
+					insertQuery = insertQuery + spaceWord + stringWord + textField_insertAddress.getText() + stringWord;
+				}
 				
 				// Sex
 				insertQuery = insertQuery + spaceWord + stringWord + insertedSex + stringWord;
 				
 				// Salary
-				insertQuery = insertQuery + spaceWord + textField_insertSalary.getText();
+				if (textField_insertSalary.getText().equals(emptyText)) {
+					insertQuery = insertQuery + spaceWord + nullText;
+				} else {
+					insertQuery = insertQuery + spaceWord + textField_insertSalary.getText();
+				}
 				
 				// Super_ssn
-				insertQuery = insertQuery + spaceWord + stringWord + textField_insertSup_ssn.getText() + stringWord;
+				if (textField_insertSup_ssn.getText().equals(emptyText)) {
+					insertQuery = insertQuery + spaceWord + nullText;
+				} else {
+					insertQuery = insertQuery + spaceWord + stringWord + textField_insertSup_ssn.getText() + stringWord;
+				}
 				
 				// Dno (not null default 1)
-				insertQuery = insertQuery + spaceWord + textField_insertDno.getText() + endQuery;
+				if (textField_insertDno.getText().equals(emptyText)) {
+					// 에러발생 , 창띄우고 실행 x
+					System.out.println("Dno has NOT NULL constraints");
+				} else {
+					insertQuery = insertQuery + spaceWord + textField_insertDno.getText() + endQuery;
+				}
+				
 				
 				// test
 				System.out.println(insertQuery);
