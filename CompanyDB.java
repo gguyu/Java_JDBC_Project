@@ -7,14 +7,17 @@ public class CompanyDB {
 	private Statement stmt = null;  // Statement 객체
 	private PreparedStatement pstmt = null;  // PreparedStatement 객체
 	
+	// query 조합
+	private String queryWhere = " where";
+	private String andText =" and";
+	
 	// 검색 질의용
 	// GUI 에서 table 만들 때 String array를 반환받아서 사용
 	private Object[][] searchResult;
 	// ResultSet 에서 개수 구해주는 method 가 없어서 행 개수 구하기 위한 쿼리를 따로 둠
 	private String getCountQuery = "select count(*), concat(e.Fname, e.Minit, e.Lname) as Name, e.Ssn, e.Bdate, e.Address, e.Sex, e.Salary, concat(s.Fname, s.Minit, s.Lname) as Supervisor, d.Dname as Department"
 			+ " from EMPLOYEE as e left outer join EMPLOYEE as s on e.Super_ssn = s.Ssn join DEPARTMENT as d on e.Dno = d.Dnumber";
-	private String queryWhere = " where";
-	private String andText =" and";
+	
 	
 	// 검색 범위, 검색 항목 받아오면 생성자로 이거 설정해주기
 	private String whereQuery;
@@ -23,6 +26,13 @@ public class CompanyDB {
 	
 	// insert문 받아오면 생성자로 이거 설정해주기
 	private String insertQuery;
+	
+	// delete문 받아오면 생성자로 이거 설정해주기
+	private String[] deleteESsn;  // 지우고 싶은 직원의 Ssn 배열
+	private int cntEssn;  // 지우고 싶은 직원의 수
+	// delete 용 query
+	private String deleteQueryForm = "delete from EMPLOYEE where Ssn = ";  // 뒤에 직원의 Ssn 붙이기
+	
 	
 	// 검색 질의 생성자
 	public CompanyDB(String selectQuery, String whereQuery, int select_columns) {
@@ -34,6 +44,12 @@ public class CompanyDB {
 	// 삽입문 생성자
 	public CompanyDB(String insertQuery) {
 		this.insertQuery = insertQuery;
+	}
+	
+	// 삭제문 생성자
+	public CompanyDB(String[] deleteEssn, int cntEssn) {
+		this.deleteESsn = deleteEssn;
+		this.cntEssn = cntEssn;
 	}
 	
 	
@@ -135,12 +151,8 @@ public class CompanyDB {
 			pstmt = con.prepareStatement(insertQuery);
 			pstmt.executeUpdate();
 			
-			
-			
 			// 해제
 			pstmt.close();
-			
-			
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -161,6 +173,50 @@ public class CompanyDB {
 	
 	// 테이블 내 체크박스 구현되면 갱신문, 삭제문 만들기
 	
+	// 삭제 연산 함수
+	public void deleteDB() {
+		
+		try {
+			// 접속 url 과 사용자, 비밀번호
+			String url="jdbc:mysql://localhost:3306/COMPANY?serverTimezon=UTC";
+			String user="root";
+			String pwd="root";
+			
+			// url 과 사용자, 비밀번호로 Connection 객체 생성
+			con = DriverManager.getConnection(url,user,pwd);
+			System.out.println("정상적으로 연결되었습니다.");
+			
+			// 삭제에 맞게 수정하기 , deleteESsn, deleteQueryForm, cntEssn
+			String deleteQuery;
+			int cntDelete = 0;
+			while (cntDelete < cntEssn) {
+				deleteQuery = deleteQueryForm + deleteESsn[cntDelete];
+				
+				pstmt = con.prepareStatement(deleteQuery);
+				pstmt.executeUpdate();
+				
+				cntDelete ++;
+			}
+			
+			// 해제
+			pstmt.close();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		// 해제
+		try {
+			if (con != null) {
+				con.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+	}  // 삭제 연산 함수 끝
 	
 	
 	

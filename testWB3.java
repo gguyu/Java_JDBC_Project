@@ -8,7 +8,8 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class testWB3 {
@@ -29,7 +30,7 @@ public class testWB3 {
    private JButton btnSearch;
    private JLabel selectedEmpLb, selectedCountLb;
    private DefaultTableModel tableModel;
-   private Set<String> selectedEmp;
+   private Set<String> selectedEmp, selectedSsn;
    
    
    
@@ -499,6 +500,10 @@ public class testWB3 {
             }
             
             selectStatement = selectStatement + fromStatement;
+            
+            // 검색을 다시하면 선택한 직원과 인원 수 표시해주는 라벨도 초기화
+            selectedEmpLb.setText("선택한 직원 :");
+            selectedCountLb.setText("인원 수 :");
                     
             // table 만들기
             CompanyDB companyDB = new CompanyDB(selectStatement, whereClause, columnCnt + 1);
@@ -518,12 +523,27 @@ public class testWB3 {
             checkBox.setHorizontalAlignment(JLabel.CENTER);
             
             // 선택한 직원, 인원 수
-            selectedEmp = new HashSet<>();
+            selectedEmp = new LinkedHashSet<>();  // 선택된 직원 정보 라벨에 사용
+            selectedSsn = new LinkedHashSet<>();  // delete, update 연산 시에 사용.
             dataTable.getColumn("선택").setCellEditor(new DefaultCellEditor(checkBox));
             checkBox.addActionListener(new ActionListener() {
             	@Override
             	public void actionPerformed(ActionEvent e) {
+            		// 선택한 행의 첫번째 attribute 받기
             		String selected = dataTable.getValueAt(dataTable.getSelectedRow(), 1).toString();
+            		
+            		// delete 연산에 인자로 넘겨줄 Ssn 이 있으면 실행 (없으면 무시하고 delete 버튼을 누르면 에러메세지 출력하게 함)
+            		if (getColumnIndex(dataTable, "Ssn") != -1) {
+            			// getColumnIndex(): column header 에 Ssn 이 없으면 -1 반환 --> exception 발생으로 selectedEssn 은 정의되지 않고 selectedSsn hashset 은 비어있게됨 (.isEmpty() == true)
+                		String selectedEssn = dataTable.getValueAt(dataTable.getSelectedRow(), getColumnIndex(dataTable, "Ssn")).toString();
+                		if(selectedEmp.contains(selected)) {
+                			selectedSsn.remove(selectedEssn);
+                		} else {
+                			selectedSsn.add(selectedEssn);
+                		}
+            		} 
+            		
+            		// 선택한 직원이 누구인지 라벨에 표시함
             		if(selectedEmp.contains(selected)) {
             			selectedEmp.remove(selected);
             		} else {
@@ -534,8 +554,7 @@ public class testWB3 {
             		panel_1.revalidate();
             	}
             });
-            
-            
+           
          }
       });
       
@@ -576,6 +595,7 @@ public class testWB3 {
          }
       });
       
+      
       // 삭제 버튼
       JButton btnDeleteDisp = new JButton("선택한 데이터 삭제"); // 버튼 누르면 선택한 직원의 정보를 DB에서 삭제
       btnDeleteDisp.setBounds(815, 40, 145, 23);
@@ -583,7 +603,31 @@ public class testWB3 {
       btnDeleteDisp.addActionListener(new ActionListener() {
     	 @Override
          public void actionPerformed(ActionEvent e) {
-    		 // delete From employee where selectedEmp에 속한 경우
+    		 int cntDeleteSsn = selectedSsn.size();  // 선택된 직원 수
+    		 
+    		 if (selectedSsn.isEmpty()) {
+    			 System.out.println("에러메시지 출력, 선택된 직원이 없습니다. 선택되어있다면 검색 항목에 'Ssn' 이 선택되어있는지 확인하세요.");
+    		 } else {
+    			 Iterator<String> iter_selectedSsn = selectedSsn.iterator();
+    			 String[] deleteSsn = new String[cntDeleteSsn];  // 배열 사이즈는 선택된 직원의 수
+    			 int idxSsn = 0;
+        		 while(iter_selectedSsn.hasNext()) {
+        			 deleteSsn[idxSsn] = iter_selectedSsn.next();
+        			 idxSsn++;
+        		 }
+        		 
+        		 // sql 객체 생성 (생성자에 deleteSsn array 와 cntDeleteSsn 넘겨주기 / cntDelete 만큼 deleteQuery[i] 삭제 반복 수행
+        		 
+        		 CompanyDB companyDB = new CompanyDB(deleteSsn, cntDeleteSsn);
+        		 companyDB.deleteDB();
+        		 System.out.println(selectedSsn.size());
+        		 
+        		 
+        		 
+    		 }
+    		 
+    		 // 예외처리되면 에러메세지만 출력, 정상적으로 작동되면 delete 연산 수행 완료
+    		 
          }
       });
       
@@ -628,6 +672,17 @@ public class testWB3 {
       
    }  // initialize() 함수 끝
    
+   // 테이블의 checkbox 에서 선택된 row의 Ssn 을 찾기 위한 함수, 만약에 Ssn이 없으면 -1을 반환. -1을 반환받으면 에러메시지 출력하기
+   private int getColumnIndex(JTable table, String header) {
+	   for (int i=0; i < table.getColumnCount(); i++) {
+		   if (table.getColumnName(i).equals(header)) {
+			   return i;
+		   }
+	   }
+	   return -1;
+   }
+   
+   // 테이블에 checkbox 를 넣기 위함.
    DefaultTableCellRenderer dcr = new DefaultTableCellRenderer() {
       public Component getTableCellRendererComponent // 셀렌더러
       (JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
