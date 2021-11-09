@@ -29,29 +29,13 @@ public class InsertSetting {
 	private JTextField textField_insertSup_ssn;
 	private JTextField textField_insertDno;
 	
+	private String insertQuery = "insert into EMPLOYEE value("; // insert ë¬¸ ì €ì¥, ì•ˆì— ë‹¤ ë„£ê³  ë§ˆì§€ë§‰ì— sql ì‹¤í–‰ì „ì— ')' ë”í•´ì£¼ê¸°
+	private String insertedSex = "M";  // comboboxì˜ default ê°’ì´ Mì´ë¯€ë¡œ
 	private String password;
-	private String insertQuery = "insert into EMPLOYEE value("; // insert ¹® ÀúÀå, ¾È¿¡ ´Ù ³Ö°í ¸¶Áö¸·¿¡ sql ½ÇÇàÀü¿¡ ')' ´õÇØÁÖ±â
-	private String insertedSex = "M";  // comboboxÀÇ default °ªÀÌ MÀÌ¹Ç·Î
 
 	/**
 	 * Launch the application.
 	 */
-	
-	/*
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					InsertSetting window = new InsertSetting();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-	*/
-	
 	public void launch() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -80,7 +64,7 @@ public class InsertSetting {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 539, 397);
-		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  <-- ÀÌ°Ô ÀÖÀ¸¸é Ã¢´İÀ¸¸é ÇÁ·Î±×·¥ÀÌ Á¾·áµÇ¼­ Ã¢´İ¾Æµµ ±âÁ¸ Ã¢Àº À¯ÁöµÇ°Ô ÇÏ·Á¸é ÀÌ ÁÙÀÌ ¾ø¾î¾ßµÊ
+		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  <-- ì´ê²Œ ìˆìœ¼ë©´ ì°½ë‹«ìœ¼ë©´ í”„ë¡œê·¸ë¨ì´ ì¢…ë£Œë˜ì„œ ì°½ë‹«ì•„ë„ ê¸°ì¡´ ì°½ì€ ìœ ì§€ë˜ê²Œ í•˜ë ¤ë©´ ì´ ì¤„ì´ ì—†ì–´ì•¼ë¨
 		frame.getContentPane().setLayout(null);
 		
 		JPanel panel = new JPanel();
@@ -88,8 +72,8 @@ public class InsertSetting {
 		frame.getContentPane().add(panel);
 		panel.setLayout(null);
 		
-		JLabel lblNewLabel = new JLabel("\uC0C8\uB85C\uC6B4 \uC9C1\uC6D0 \uC815\uBCF4 \uCD94\uAC00");
-		lblNewLabel.setFont(new Font("±¼¸²", Font.BOLD, 15));
+		JLabel lblNewLabel = new JLabel("ìƒˆë¡œìš´ ì§ì› ì •ë³´ ì¶”ê°€");
+		lblNewLabel.setFont(new Font("êµ´ë¦¼", Font.BOLD, 15));
 		lblNewLabel.setBounds(180, 0, 159, 30);
 		panel.add(lblNewLabel);
 		
@@ -134,7 +118,7 @@ public class InsertSetting {
 		panel.add(lblNewLabel_1_9);
 		
 		
-		// ÀÔ·ÂÃ¢
+		// ì…ë ¥ì°½
 		
 		textField_insertFname = new JTextField();
 		textField_insertFname.setBounds(87, 46, 356, 21);
@@ -197,28 +181,30 @@ public class InsertSetting {
 		});
 		
 		
-		// µ¥ÀÌÅÍ Ãß°¡ÇÏ±â ¹öÆ° (´©¸£¸é °ªµé ¹Ş¾Æ¿Í¼­ insertQuery ¸¸µé°í µ¥ÀÌÅÍ Ãß°¡)
-		JButton btnInsertButton = new JButton("µ¥ÀÌÅÍ Ãß°¡ÇÏ±â");
+		// ë°ì´í„° ì¶”ê°€í•˜ê¸° ë²„íŠ¼ (ëˆ„ë¥´ë©´ ê°’ë“¤ ë°›ì•„ì™€ì„œ insertQuery ë§Œë“¤ê³  ë°ì´í„° ì¶”ê°€)
+		JButton btnInsertButton = new JButton("ë°ì´í„° ì¶”ê°€í•˜ê¸°");
 		btnInsertButton.setBounds(199, 313, 121, 23);
 		panel.add(btnInsertButton);
 		
 		btnInsertButton.addMouseListener(new MouseAdapter() {
-			String emptyText = "";  	// textfield °¡ ºñ¾îÀÖ´ÂÁö ºñ±³ ¿ëµµ
-			String spaceWord = ", ";	// insertQuery ¿¡ Ãß°¡ÇÏ±â Àü¿¡ ÇÑ Ä­ ¶ç¾î¾²±â ÇØ¾ß‰Î.
-			String stringWord = "'"; 	// insertQuery ¿¡ string »ğÀÔÇÏ¸é ' ¸¦ ¾ç ¿·¿¡ ºÙ¿©Áà¾ßÇÔ.
-			String endQuery = ")"; 		// insert ¹® ¸¶Áö¸·Àº value ÀÇ °ıÈ£¸¦ ´İ¾ÆÁà¾ßÇÔ
-			String nullText = "NULL";   // °ªÀ» µû·Î ÀÔ·Â¾ÈÇÏ¸é NULL ·Î Áı¾î³ÖÀ½
+			String emptyText = "";  	// textfield ê°€ ë¹„ì–´ìˆëŠ”ì§€ ë¹„êµ ìš©ë„
+			String spaceWord = ", ";	// insertQuery ì— ì¶”ê°€í•˜ê¸° ì „ì— í•œ ì¹¸ ë„ì–´ì“°ê¸° í•´ì•¼Â‰.
+			String stringWord = "'"; 	// insertQuery ì— string ì‚½ì…í•˜ë©´ ' ë¥¼ ì–‘ ì˜†ì— ë¶™ì—¬ì¤˜ì•¼í•¨.
+			String endQuery = ")"; 		// insert ë¬¸ ë§ˆì§€ë§‰ì€ value ì˜ ê´„í˜¸ë¥¼ ë‹«ì•„ì¤˜ì•¼í•¨
+			String nullText = "NULL";   // ê°’ì„ ë”°ë¡œ ì…ë ¥ì•ˆí•˜ë©´ NULL ë¡œ ì§‘ì–´ë„£ìŒ
+            
+            String eString = "";        // ì—ëŸ¬ ë©”ì‹œì§€ ì¶œë ¥ìš©
+            
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				// textField.getText() ´Â textField°¡ empty ÀÌ¸é "" ¹İÈ¯ÇØÁÜ
+				// textField.getText() ëŠ” textFieldê°€ empty ì´ë©´ "" ë°˜í™˜í•´ì¤Œ
 				// Fname (not null)
 				if (textField_insertFname.getText().equals(emptyText)) {
-					// ¿¡·¯¹ß»ı , Ã¢¶ç¿ì°í ½ÇÇà x
-					System.out.println("Fname has NOT NULL constraints");
+					// ì—ëŸ¬ë°œìƒ , ì°½ë„ìš°ê³  ì‹¤í–‰ x
+					insertQuery = insertQuery + nullText; // ì´ë¦„ì— nullì„ ë„£ì–´ sqlexception íŠ¸ë¦¬ê±° ìš©
 				} else {
 					insertQuery = insertQuery + stringWord + textField_insertFname.getText() + stringWord;
 				}
-				
 				
 				// Minit
 				if (textField_insertMinit.getText().equals(emptyText)) {
@@ -229,8 +215,7 @@ public class InsertSetting {
 				
 				// Lname (not null)
 				if (textField_insertLname.getText().equals(emptyText)) {
-					// ¿¡·¯¹ß»ı , Ã¢¶ç¿ì°í ½ÇÇà x
-					System.out.println("Lname has NOT NULL constraints");
+					insertQuery = insertQuery + nullText; // ì´ë¦„ì— nullì„ ë„£ì–´ sqlexception íŠ¸ë¦¬ê±° ìš©
 				} else {
 					insertQuery = insertQuery + spaceWord + stringWord + textField_insertLname.getText() + stringWord;
 				}
@@ -275,38 +260,32 @@ public class InsertSetting {
 				
 				// Dno (not null default 1)
 				if (textField_insertDno.getText().equals(emptyText)) {
-					// ¿¡·¯¹ß»ı , Ã¢¶ç¿ì°í ½ÇÇà x
-					System.out.println("Dno has NOT NULL constraints");
+                   insertQuery = insertQuery + spaceWord + "1" + endQuery;
+					
 				} else {
 					insertQuery = insertQuery + spaceWord + textField_insertDno.getText() + endQuery;
 				}
 				
-				
 				// test
 				System.out.println(insertQuery);
 				
-				// CompanyDB °´Ã¼ »ı¼ºÇØ¼­ »ı¼ºÀÚ·Î insertQuery ³Ñ°ÜÁà¼­ »ğÀÔ Äõ¸® ½ÇÇàÇÏ±â
+				// CompanyDB ê°ì²´ ìƒì„±í•´ì„œ ìƒì„±ìë¡œ insertQuery ë„˜ê²¨ì¤˜ì„œ ì‚½ì… ì¿¼ë¦¬ ì‹¤í–‰í•˜ê¸°
 				CompanyDB companyDB_insert = new CompanyDB(insertQuery, password);
-				companyDB_insert.insertDB();
+				companyDB_insert.insertDB(eString);
 				
-				// Äõ¸®¹® ÃÊ±âÈ­
+				
+				
+				// ì¿¼ë¦¬ë¬¸ ì´ˆê¸°í™”
 				insertQuery = "insert into EMPLOYEE value(";
 				
 			
 			}
 		});
+
+		// insertQuery   <---- insert ë¬¸ ì €ì¥í•  string ë³€ìˆ˜ ìœ„ì— class ë³€ìˆ˜ë¡œ ì„ ì–¸í•´ë†“ìŒ
 		
 		
-		
-		// insertQuery   <---- insert ¹® ÀúÀåÇÒ string º¯¼ö À§¿¡ class º¯¼ö·Î ¼±¾ğÇØ³õÀ½
-		
-		
-		
-		
-		
-		
-		
-		
-		
-	}  // initialize ÇÔ¼ö ³¡
+	}  // initialize í•¨ìˆ˜ ë
+
+	
 }

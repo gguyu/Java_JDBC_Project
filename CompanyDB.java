@@ -1,17 +1,18 @@
 package test3;
 
 import java.sql.*;
+import java.util.Set;
 
 public class CompanyDB {
 	private Connection con = null;  // connection 객체
 	private Statement stmt = null;  // Statement 객체
 	private PreparedStatement pstmt = null;  // PreparedStatement 객체
 	
-	// 접속 url 과 사용자, 비밀번호
-	private String url="jdbc:mysql://localhost:3306/COMPANY?serverTimezon=UTC";
-	private String user="root";
-	private String pwd;
 	
+	// 접속 url 과 사용자, 비밀번호
+	private String base_url="jdbc:mysql://localhost:3306/COMPANY?serverTimezon=UTC";
+	private String base_user="root";
+	private String base_pwd;
 	
 	// query 조합
 	private String queryWhere = " where";
@@ -39,28 +40,39 @@ public class CompanyDB {
 	// delete 용 query
 	private String deleteQueryForm = "delete from EMPLOYEE where Ssn = ";  // 뒤에 직원의 Ssn 붙이기
 	
+	private String updateQueryForm = "update EMPLOYEE set "; // 변경할 ATT랑 where 절 만들어서 붙이기
+	
+	private String[] updateEssn;
 	
 	// 검색 질의 생성자
 	public CompanyDB(String selectQuery, String whereQuery, int select_columns, String password) {
 		this.selectQuery = selectQuery;
 		this.whereQuery = whereQuery;
 		this.select_columns = select_columns;
-		pwd = password;
+		this.base_pwd = password;
 	}
 	
 	// 삽입문 생성자
 	public CompanyDB(String insertQuery, String password) {
 		this.insertQuery = insertQuery;
-		pwd = password;
+		this.base_pwd = password;
 	}
+	
+	// 삽입 삭제 생성자 결합??
 	
 	// 삭제문 생성자
 	public CompanyDB(String[] deleteEssn, int cntEssn, String password) {
 		this.deleteESsn = deleteEssn;
 		this.cntEssn = cntEssn;
-		pwd = password;
+		this.base_pwd = password;
 	}
 	
+	// 갱신문 생성자
+	public CompanyDB(String[] updateEssn, int cntEssn, String password, String stat) {
+		this.updateEssn = updateEssn;
+		this.cntEssn = cntEssn;
+		this.base_pwd = password;
+	}
 	
 	
 	// 검색 질의 함수
@@ -68,8 +80,10 @@ public class CompanyDB {
 		ResultSet rs;
 		
 		try {
+			// 접속 url 과 사용자, 비밀번호
+			
 			// url 과 사용자, 비밀번호로 Connection 객체 생성
-			con = DriverManager.getConnection(url,user,pwd);
+			con = DriverManager.getConnection(base_url,base_user,base_pwd);
 			System.out.println("정상적으로 연결되었습니다.");
 			
 			int select_rows = 0;	// 위의 getCountQuery 이용해서 값 받음	
@@ -122,6 +136,8 @@ public class CompanyDB {
 		} catch (SQLException e) {  // connection 객체를 생성할 수 없을 때
 			System.err.println("연결할 수 없습니다.");
 			e.printStackTrace();
+			
+			
 		}
 		
 		// 해제
@@ -140,11 +156,20 @@ public class CompanyDB {
 
 	
 	// 삽입 연산 함수
-	public void insertDB() {
+	public void insertDB(String eString) {
 		
 		try {
+			
+			// 삽딥 단계에서 오류 있나 체크
+			if ( eString != "") {
+				if(eString == "Dno에 값을 입력하지 않아 default 값인 1로 적용됩니다.") { //구름
+					ewin ew = new ewin(eString);
+					ew.launch(eString);
+				}
+			}
+            
 			// url 과 사용자, 비밀번호로 Connection 객체 생성
-			con = DriverManager.getConnection(url,user,pwd);
+			con = DriverManager.getConnection(base_url,base_user,base_pwd);
 			System.out.println("정상적으로 연결되었습니다.");
 			
 			pstmt = con.prepareStatement(insertQuery);
@@ -154,17 +179,23 @@ public class CompanyDB {
 			pstmt.close();
 			
 		} catch (SQLException e) {
+			String err = e.getMessage();
+			ewin ew = new ewin(err);
+			ew.launch(err);
+			
 			e.printStackTrace();
 		}
 		
-		// 해제
+		// 해제 --> 물어보기
+		/*
 		try {
 			if (con != null) {
 				con.close();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
+					
+		}*/
 		
 		
 	}  // 삽입 연산 함수 끝 
@@ -176,8 +207,7 @@ public class CompanyDB {
 	public void deleteDB() {
 		
 		try {
-			// url 과 사용자, 비밀번호로 Connection 객체 생성
-			con = DriverManager.getConnection(url,user,pwd);
+			con = DriverManager.getConnection(base_url,base_user,base_pwd);
 			System.out.println("정상적으로 연결되었습니다.");
 			
 			// 삭제에 맞게 수정하기 , deleteESsn, deleteQueryForm, cntEssn
@@ -212,8 +242,57 @@ public class CompanyDB {
 		
 	}  // 삭제 연산 함수 끝
 	
+	// 갱신 연산 함수
+	public void updateDB(String att, String value) {
+		try {
+			con = DriverManager.getConnection(base_url,base_user,base_pwd);
+			System.out.println("정상적으로 연결되었습니다.");
+			
+			String updateQuery;
+			
+			// salary가 들어온 경우 value가 숫자인가 확인하는 작업
+			if (att == ("Salary")&&!value.matches("[+-]?\\d*(\\.\\d+)?")) {
+				Exception e = new Exception("숫자만 입력해주세요!");
+				
+				throw e;
+			}
+			
+			int cntUpdate = 0;
+			while (cntUpdate < cntEssn) {
+				updateQuery = updateQueryForm; // att 이름이랑 값 바꿈, 한번마다 초기화
+				
+				if(att != "Salary") {
+					System.out.println(updateQuery);
+					updateQuery = updateQuery + att + "= '" + value + "'" + " where " + "Ssn = '" + updateEssn[cntUpdate] + "';" ;
+					System.out.println(updateQuery);
+				}
+				
+				else {
+					updateQuery = updateQuery + att + "= '" + value + "' " + " where " + "Ssn = " + updateEssn[cntUpdate] + ";" ; // 샐러리는 필요 없음.
+					System.out.println(updateQuery);
+				}
+				
+				pstmt = con.prepareStatement(updateQuery);
+				pstmt.executeUpdate();
+				
+				cntUpdate ++;
+			}
+			
+		}
+		catch (SQLException e) {
+			String err = e.getMessage();
+			ewin ew = new ewin(err);
+			ew.launch(err);
+			e.printStackTrace();
+		}
+		
+		catch (Exception e) {
+			String err = e.getMessage();
+			ewin ew = new ewin(err);
+			ew.launch(err);
+			
+			e.printStackTrace();
+		}
+	}		
 	
-	
-	
-
 }

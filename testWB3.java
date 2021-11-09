@@ -3,6 +3,7 @@ package test3;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+import javax.security.auth.callback.PasswordCallback;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
@@ -14,7 +15,7 @@ import java.util.Set;
 
 public class testWB3 {
 
-   private JFrame frame, frameLogin;
+   JFrame frame, frameLogin;
    
    private JTextField textField_salary;  // 연봉 검색창 객체
    private JTextField textField_sub; // 부하직원 검색창 객체
@@ -32,36 +33,12 @@ public class testWB3 {
    private DefaultTableModel tableModel;
    private Set<String> selectedEmp, selectedSsn;
    
-   
+   // MySQL 로그인 기능
    private String password = "root";  // 비밀번호 선택 창 입력안하고 끄면 우선 default 로 root
    private JTextField textField_Password;
-  
-
-   /**
-    * Launch the application.
-    */
-   public static void main(String[] args) {
-      EventQueue.invokeLater(new Runnable() {
-         public void run() {
-            try {
-               testWB3 window = new testWB3();
-               window.frame.setVisible(true);
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
-         }
-      });
-   }
    
-
-   /**
-    * Create the application.
-    */
-   public testWB3() {
-      initialize();
-   }
-   
-   // Login 창 띄우기 11/9 01:06 수정사항 -황규진 - initialize() 함수 초반에 실행
+	
+	// Login 창 띄우기 11/9 01:06 수정사항 -황규진 - initialize() 함수 초반에 실행
    private void loginFrame() {
 	   	frameLogin = new JFrame();
 	   	frameLogin.setBounds(100, 100, 310, 180);
@@ -124,20 +101,44 @@ public class testWB3 {
    }  // Login 창 끝
    
    
+
+   /**
+    * Launch the application.
+    */
+   public static void main(String[] args) {
+      EventQueue.invokeLater(new Runnable() {
+         public void run() {
+            try {
+               testWB3 window = new testWB3();
+               window.frame.setVisible(true);
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      });
+   }
    
+
+   /**
+    * Create the application.
+    */
+   public testWB3() {
+      initialize();
+   }
+
+	
    /**
     * Initialize the contents of the frame.
     */
    private void initialize() {
-	   
       frame = new JFrame();
       frame.getContentPane().setForeground(SystemColor.desktop);
       frame.setBounds(100, 100, 1002, 512);
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.getContentPane().setLayout(null);
-      
-      // password 창 띄우기
-      loginFrame();
+	   
+	  // Login 창 띄우기
+	  loginFrame();
       
       // 검색 조건 panel
       JPanel panel = new JPanel();
@@ -405,13 +406,19 @@ public class testWB3 {
       btnSearch.setBounds(837, 42, 107, 30);
       panel.add(btnSearch);
       
+      
       // table 생성
       tableModel = new DefaultTableModel();
       dataTable = new JTable(tableModel);
       JScrollPane scrollPane = new JScrollPane(dataTable);
       frame.getContentPane().add(scrollPane);
+      
       scrollPane.setViewportView(dataTable);
       scrollPane.setBounds(10, 96, 964, 277);
+      
+      
+      
+      
       
       btnSearch.addMouseListener(new MouseAdapter() {
          String emptyText = "";  // textfield 가 비어있는지 비교 용도
@@ -438,7 +445,7 @@ public class testWB3 {
                   selectStatement = "select ";
                }
                cntSelect++;
-               selectStatement += "concat(e.Fname, e.Minit, e.Lname) as Name";   
+               selectStatement += "concat(e.Fname, IFNULL(e.Minit, \"\"), e.Lname) as Name";   
             }
             
             if(chckbxSearchSsn.isSelected()) {  // Ssn 이 체크되면 실행
@@ -498,7 +505,7 @@ public class testWB3 {
                   selectStatement = "select ";
                }
                cntSelect++;
-               selectStatement += "concat(s.Fname, s.Minit, s.Lname) as Supervisor";
+               selectStatement += "concat(s.Fname, IFNULL(s.Minit, \"\"), s.Lname) as Supervisor";
             }
             
             if(chckbxSearchDepartment.isSelected()) {  // Department 가 체크되면 실행
@@ -592,19 +599,21 @@ public class testWB3 {
             checkBox.addActionListener(new ActionListener() {
             	@Override
             	public void actionPerformed(ActionEvent e) {
-            		// 선택한 행의 첫번째 attribute 받기
-            		String selected = dataTable.getValueAt(dataTable.getSelectedRow(), 1).toString();
-            		
-            		// delete 연산에 인자로 넘겨줄 Ssn 이 있으면 실행 (없으면 무시하고 delete 버튼을 누르면 에러메세지 출력하게 함)
-            		if (getColumnIndex(dataTable, "Ssn") != -1) {
-            			// getColumnIndex(): column header 에 Ssn 이 없으면 -1 반환 --> exception 발생으로 selectedEssn 은 정의되지 않고 selectedSsn hashset 은 비어있게됨 (.isEmpty() == true)
-                		String selectedEssn = dataTable.getValueAt(dataTable.getSelectedRow(), getColumnIndex(dataTable, "Ssn")).toString();
-                		if(selectedEmp.contains(selected)) {
-                			selectedSsn.remove(selectedEssn);
-                		} else {
-                			selectedSsn.add(selectedEssn);
-                		}
-            		} 
+	            		// 선택한 행의 첫번째 attribute 받기
+	            		String selected = dataTable.getValueAt(dataTable.getSelectedRow(), 1).toString();
+	            		
+	            		// delete 연산에 인자로 넘겨줄 Ssn 이 있으면 실행 (없으면 무시하고 delete 버튼을 누르면 에러메세지 출력하게 함)
+	            		if (getColumnIndex(dataTable, "Ssn") != -1) {
+	            			// getColumnIndex(): column header 에 Ssn 이 없으면 -1 반환 --> exception 발생으로 selectedEssn 은 정의되지 않고 selectedSsn hashset 은 비어있게됨 (.isEmpty() == true)
+	                		String selectedEssn = dataTable.getValueAt(dataTable.getSelectedRow(), getColumnIndex(dataTable, "Ssn")).toString();
+	                		if(selectedEmp.contains(selectedEssn)) {
+	                			selectedSsn.remove(selectedEssn);
+	                			System.out.println(selectedSsn.size());
+	                		} else {
+	                			selectedSsn.add(selectedEssn);
+	                			System.out.println(selectedSsn.size());
+	                		}
+	            		}
             		
             		// 선택한 직원이 누구인지 라벨에 표시함
             		if(selectedEmp.contains(selected)) {
@@ -680,13 +689,16 @@ public class testWB3 {
         		 }
         		 
         		 // sql 객체 생성 (생성자에 deleteSsn array 와 cntDeleteSsn 넘겨주기 / cntDelete 만큼 deleteQuery[i] 삭제 반복 수행
-        		 CompanyDB companyDB = new CompanyDB(deleteSsn, cntDeleteSsn,password);
+        		 
+        		 CompanyDB companyDB = new CompanyDB(deleteSsn, cntDeleteSsn, password);
         		 companyDB.deleteDB();
         		 System.out.println(selectedSsn.size());
         		 
+        		 
+        		 
     		 }
     		 
-    		 // 예외처리되면 에러메세지만 출력, 정상적으로 작동되면 delete 연산 수행 완료 예외처리 만들기
+    		 // 예외처리되면 에러메세지만 출력, 정상적으로 작동되면 delete 연산 수행 완료
     		 
          }
       });
@@ -714,16 +726,48 @@ public class testWB3 {
       btnUpdate.addActionListener(new ActionListener() {
     	  @Override
     	  public void actionPerformed(ActionEvent e) {
-    		  if (comboBox_update.getSelectedItem() == "Address") {
-    			  // update employee set address = textField.getText()
-    		  } else if (comboBox_update.getSelectedItem() == "Sex") {
-    			  // update employee set sex = textFiled.getText()
-    		  } else if (comboBox_update.getSelectedItem() == "Salary") {
-    			  
-    		  }
-    		  
-    		  // 객체 생성 + 수정연산
-    		  
+    		  int cntUpdateSsn = selectedSsn.size();
+	    		  String stat = "up";
+	    		  
+	    		  if (selectedSsn.isEmpty()) {
+		    			 System.out.println("에러메시지 출력, 선택된 직원이 없습니다. 선택되어있다면 검색 항목에 'Ssn' 이 선택되어있는지 확인하세요.");
+		    		 }
+	    		  else {
+	    			  Iterator<String> iter_selectedSsn = selectedSsn.iterator();
+	    			  String[] updateSsn = new String[cntUpdateSsn];  // 배열 사이즈는 선택된 직원의 수
+	    			  int idxSsn = 0;
+	    			  while(iter_selectedSsn.hasNext()) {
+	    				  updateSsn[idxSsn] = iter_selectedSsn.next();
+	    				  idxSsn++;
+	    				  }
+	    			  
+		    		  if (comboBox_update.getSelectedItem() == "Address") {
+		    			  // update employee set address = textField.getText()
+		    			  String uData = textField.getText();
+		    			  String att = (String) comboBox_update.getSelectedItem();
+		    			  
+		    			  CompanyDB companyDB = new CompanyDB(updateSsn, cntUpdateSsn, password, stat);
+		    			  companyDB.updateDB(att, uData);
+		    			  
+		    		  } else if (comboBox_update.getSelectedItem() == "Sex") {
+		    			  // update employee set sex = textFiled.getText()
+		    			  String uData = textField.getText();
+		    			  String att = (String) comboBox_update.getSelectedItem();
+		    			  
+		    			  CompanyDB companyDB = new CompanyDB(updateSsn, cntUpdateSsn, password, stat);
+		    			  companyDB.updateDB(att, uData);
+		    			  
+		    		  } else if (comboBox_update.getSelectedItem() == "Salary") {
+		    			  String uData = textField.getText();
+		    			  String att = (String) comboBox_update.getSelectedItem();
+		    			  
+		    			  CompanyDB companyDB = new CompanyDB(updateSsn, cntUpdateSsn, password, stat);
+		    			  companyDB.updateDB(att, uData);
+		    		  }
+	    		  }   
+	    		  
+	    		  // 객체 생성 + 수정연산
+	    		  
     	  }
       });
       
