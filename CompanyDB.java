@@ -2,6 +2,9 @@ package test3;
 
 import java.sql.*;
 import java.util.Set;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 
 public class CompanyDB {
 	private Connection con = null;  // connection 객체
@@ -21,6 +24,10 @@ public class CompanyDB {
 	// 검색 질의용
 	// GUI 에서 table 만들 때 String array를 반환받아서 사용
 	private Object[][] searchResult;
+	private String[] attributes;
+	static HashSet<String> ssnResult;
+	
+	
 	// ResultSet 에서 개수 구해주는 method 가 없어서 행 개수 구하기 위한 쿼리를 따로 둠
 	private String getCountQuery = "select count(*), concat(e.Fname, e.Minit, e.Lname) as Name, e.Ssn, e.Bdate, e.Address, e.Sex, e.Salary, concat(s.Fname, s.Minit, s.Lname) as Supervisor, d.Dname as Department"
 			+ " from EMPLOYEE as e left outer join EMPLOYEE as s on e.Super_ssn = s.Ssn join DEPARTMENT as d on e.Dno = d.Dnumber";
@@ -45,13 +52,17 @@ public class CompanyDB {
 	private String[] updateEssn;
 	
 	// 검색 질의 생성자
-	public CompanyDB(String selectQuery, String whereQuery, int select_columns, String password) {
+	public CompanyDB(String selectQuery, String whereQuery, int select_columns, String password, String[] attributes) {
 		this.selectQuery = selectQuery;
 		this.whereQuery = whereQuery;
 		this.select_columns = select_columns;
 		this.base_pwd = password;
+		this.attributes = attributes;
 	}
 	
+	public CompanyDB() {
+		
+	}
 	// 삽입문 생성자
 	public CompanyDB(String insertQuery, String password) {
 		this.insertQuery = insertQuery;
@@ -73,12 +84,16 @@ public class CompanyDB {
 		this.cntEssn = cntEssn;
 		this.base_pwd = password;
 	}
+    
+    // 일반 생성자, 평균 임금 산출 용
+	public CompanyDB(String password) {
+		this.base_pwd = password;
+	}
 	
 	
 	// 검색 질의 함수
 	public Object[][] searchDB() {
 		ResultSet rs;
-		
 		try {
 			// 접속 url 과 사용자, 비밀번호
 			
@@ -106,12 +121,12 @@ public class CompanyDB {
 			
 			// 검색 결과를 담을 string array 선언 (이 때 결과 행 개수 구한 것 사용)
 			searchResult = new Object[select_rows][select_columns];
-			
+			ssnResult = new HashSet<>();
 			// 일단은 table 구동 시험을 위한 attribute 들 모두 출력 (검색범위 전체, 검색 항목 전체)
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(selectQuery);
-			
 			// 검색 결과를 string array 인 searchResult 에 저장
+			
 			while(rs.next()) {
 				
 				while (count_columns < select_columns) {
@@ -119,6 +134,9 @@ public class CompanyDB {
 					if (count_columns == 0) {
 						searchResult[count_rows][count_columns] = false;
 					} else {
+						if (Arrays.asList(attributes).contains("Ssn")) {
+							ssnResult.add(rs.getString("Ssn").toString());
+						}
 						searchResult[count_rows][count_columns] = rs.getString(count_columns);
 					}
 					count_columns++;
@@ -126,6 +144,8 @@ public class CompanyDB {
 				count_columns = 0;
 				count_rows++;
 			}
+			
+			//System.out.println(ssnResult);
 			
 			
 			// 해제
@@ -156,21 +176,15 @@ public class CompanyDB {
 
 	
 	// 삽입 연산 함수
-	public void insertDB(String eString) {
+	public String insertDB(String eString) { //구름
+		String eMessage = ""; //구름
 		
 		try {
-			
-			// 삽딥 단계에서 오류 있나 체크
-			if ( eString != "") {
-				if(eString == "Dno에 값을 입력하지 않아 default 값인 1로 적용됩니다.") { //구름
-					ewin ew = new ewin(eString);
-					ew.launch(eString);
-				}
-			}
-            
 			// url 과 사용자, 비밀번호로 Connection 객체 생성
 			con = DriverManager.getConnection(base_url,base_user,base_pwd);
 			System.out.println("정상적으로 연결되었습니다.");
+			
+			System.out.println("check: " + insertQuery);
 			
 			pstmt = con.prepareStatement(insertQuery);
 			pstmt.executeUpdate();
@@ -178,26 +192,28 @@ public class CompanyDB {
 			// 해제
 			pstmt.close();
 			
-		} catch (SQLException e) {
-			String err = e.getMessage();
-			ewin ew = new ewin(err);
-			ew.launch(err);
 			
-			e.printStackTrace();
-		}
-		
-		// 해제 --> 물어보기
-		/*
-		try {
-			if (con != null) {
-				con.close();
+			// 삽입 단계에서 오류 있나 체크 및 성공 메시지 띄우기
+			if ( eString != "") {
+				if(eString == "Dno에 값을 입력하지 않아 default 값인 1로 적용됩니다.") {
+					eMessage = "삽입되었습니다. " + eString;
+					return eMessage; // 구름
+				}
 			}
+			
+			else {
+				String insertMessage = "삽입되었습니다.";				
+				return eMessage; // 구름
+			}
+			
+			return eMessage;
+			
 		} catch (SQLException e) {
+			eMessage = e.getMessage();
 			e.printStackTrace();
-					
-		}*/
-		
-		
+
+			return eMessage;
+		}
 	}  // 삽입 연산 함수 끝 
 
 	
@@ -243,7 +259,9 @@ public class CompanyDB {
 	}  // 삭제 연산 함수 끝
 	
 	// 갱신 연산 함수
-	public void updateDB(String att, String value) {
+	public String updateDB(String att, String value) {
+		String eString = "";
+		
 		try {
 			con = DriverManager.getConnection(base_url,base_user,base_pwd);
 			System.out.println("정상적으로 연결되었습니다.");
@@ -278,21 +296,65 @@ public class CompanyDB {
 				cntUpdate ++;
 			}
 			
+			return eString;
 		}
 		catch (SQLException e) {
-			String err = e.getMessage();
-			ewin ew = new ewin(err);
-			ew.launch(err);
+			eString = e.getMessage();
 			e.printStackTrace();
+			return eString;
 		}
 		
 		catch (Exception e) {
-			String err = e.getMessage();
-			ewin ew = new ewin(err);
-			ew.launch(err);
+			eString = e.getMessage();
+			e.printStackTrace();
+			return eString;
+		}
+	}
+    
+    // 선택된 직원 평균 임금 연산, sum 값을 쿼리 받아서 사이즈를 줄이기
+    public float retAvgSal(Set<String> ssnSet) { //구름
+		float avg = 0;
+		ResultSet rs;
+        
+        int cntEmp = ssnSet.size(); // 사이즈 받기
+		if (cntEmp == 0) {return avg;} // 만약 체크가 다 풀려 size가 0이면 그냥 0 반환
+		
+		try {
+			con = DriverManager.getConnection(base_url,base_user,base_pwd);
+			System.out.println("정상적으로 연결되었습니다.");
 			
+			String avgQuery = "select SUM(Salary) as SUM from Employee where ";
+			
+            Iterator<String> iter_selectedSsn = ssnSet.iterator();
+            
+			int cnt = 0;
+			while(iter_selectedSsn.hasNext()) {
+				avgQuery = avgQuery+"ssn = " + iter_selectedSsn.next();
+				
+				if(iter_selectedSsn.hasNext()) {
+					avgQuery = avgQuery + " or ";
+				}
+			}
+			
+			avgQuery = avgQuery + ";";
+			
+			System.out.println(avgQuery);
+			
+			stmt = con.createStatement();
+			rs = stmt.executeQuery(avgQuery);
+			
+			if(rs.next()) {
+				avg = rs.getFloat("SUM")/ssnSet.size();  // 임금합을 선택된 숫자로 나누어 평균 구하기
+			}
+			stmt.close();
+			rs.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}		
+		
+		return avg;
+	}
 	
 }

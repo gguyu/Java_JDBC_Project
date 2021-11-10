@@ -6,6 +6,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
@@ -15,6 +17,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashSet;
 
 public class InsertSetting {
 
@@ -28,14 +31,32 @@ public class InsertSetting {
 	private JTextField textField_insertSalary;
 	private JTextField textField_insertSup_ssn;
 	private JTextField textField_insertDno;
+	private HashSet<String> ssnResult = CompanyDB.ssnResult;
 	
 	private String insertQuery = "insert into EMPLOYEE value("; // insert 문 저장, 안에 다 넣고 마지막에 sql 실행전에 ')' 더해주기
 	private String insertedSex = "M";  // combobox의 default 값이 M이므로
+	
 	private String password;
 
 	/**
 	 * Launch the application.
 	 */
+	
+	/*
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					InsertSetting window = new InsertSetting();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	*/
+	
 	public void launch() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -63,16 +84,18 @@ public class InsertSetting {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 539, 397);
+		frame.setBounds(100, 100, 480, 397);
 		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  <-- 이게 있으면 창닫으면 프로그램이 종료되서 창닫아도 기존 창은 유지되게 하려면 이 줄이 없어야됨
 		frame.getContentPane().setLayout(null);
+        
+        frame.setLocationRelativeTo(null); // 가운데 뜨기
 		
 		JPanel panel = new JPanel();
 		panel.setBounds(0, 0, 523, 358);
 		frame.getContentPane().add(panel);
 		panel.setLayout(null);
 		
-		JLabel lblNewLabel = new JLabel("새로운 직원 정보 추가");
+		JLabel lblNewLabel = new JLabel("\uC0C8\uB85C\uC6B4 \uC9C1\uC6D0 \uC815\uBCF4 \uCD94\uAC00");
 		lblNewLabel.setFont(new Font("굴림", Font.BOLD, 15));
 		lblNewLabel.setBounds(180, 0, 159, 30);
 		panel.add(lblNewLabel);
@@ -183,7 +206,7 @@ public class InsertSetting {
 		
 		// 데이터 추가하기 버튼 (누르면 값들 받아와서 insertQuery 만들고 데이터 추가)
 		JButton btnInsertButton = new JButton("데이터 추가하기");
-		btnInsertButton.setBounds(199, 313, 121, 23);
+		btnInsertButton.setBounds(199, 313, 140, 23);
 		panel.add(btnInsertButton);
 		
 		btnInsertButton.addMouseListener(new MouseAdapter() {
@@ -199,6 +222,7 @@ public class InsertSetting {
 			public void mouseClicked(MouseEvent e) {
 				// textField.getText() 는 textField가 empty 이면 "" 반환해줌
 				// Fname (not null)
+				
 				if (textField_insertFname.getText().equals(emptyText)) {
 					// 에러발생 , 창띄우고 실행 x
 					insertQuery = insertQuery + nullText; // 이름에 null을 넣어 sqlexception 트리거 용
@@ -208,24 +232,34 @@ public class InsertSetting {
 				
 				// Minit
 				if (textField_insertMinit.getText().equals(emptyText)) {
-					insertQuery = insertQuery + spaceWord + nullText;
+					insertQuery = insertQuery + spaceWord + nullText; 
 				} else {
 					insertQuery = insertQuery + spaceWord + stringWord + textField_insertMinit.getText() + stringWord;
 				}
 				
 				// Lname (not null)
 				if (textField_insertLname.getText().equals(emptyText)) {
-					insertQuery = insertQuery + nullText; // 이름에 null을 넣어 sqlexception 트리거 용
+					insertQuery = insertQuery + spaceWord + nullText; // 구름// 이름에 null을 넣어 sqlexception 트리거 용
+					
 				} else {
 					insertQuery = insertQuery + spaceWord + stringWord + textField_insertLname.getText() + stringWord;
 				}
 				
 				// Ssn (not null, primary key)
-				if (textField_insertSsn.getText().equals(emptyText)) {
-					insertQuery = insertQuery + spaceWord + nullText;
-				} else {
-					insertQuery = insertQuery + spaceWord + stringWord + textField_insertSsn.getText() + stringWord;
+				if(textField_insertSsn.getText().toString().length() == 9) {
+					if (textField_insertSsn.getText().equals(emptyText)) {
+						insertQuery = insertQuery + spaceWord + nullText;
+					} else {
+						if(ssnResult != null) {
+							if(!ssnResult.contains(textField_insertSsn.getText())) {
+								insertQuery = insertQuery + spaceWord + stringWord + textField_insertSsn.getText() + stringWord;
+							}
+						}else {
+							insertQuery = insertQuery + spaceWord + stringWord + textField_insertSsn.getText() + stringWord;
+						}
+					}
 				}
+				
 				
 				// Bdate
 				if (textField_insertBdate.getText().equals(emptyText)) {
@@ -273,12 +307,26 @@ public class InsertSetting {
 				CompanyDB companyDB_insert = new CompanyDB(insertQuery, password);
 				companyDB_insert.insertDB(eString);
 				
-				
-				
+				if(textField_insertFname.getText().equals(emptyText)) {
+					JOptionPane.showMessageDialog(frame, "필수 입력항목입니다.(First Name)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);
+				}else if(textField_insertLname.getText().equals(emptyText)) {
+					JOptionPane.showMessageDialog(frame, "필수 입력항목입니다.(Last Name)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);
+				}else if(textField_insertSsn.getText().equals(emptyText)) {
+					JOptionPane.showMessageDialog(frame, "필수 입력항목입니다.(ssn)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);
+				}else if(ssnResult.contains(textField_insertSsn.getText())){
+					JOptionPane.showMessageDialog(frame, "중복되는 값이 존재합니다.(Ssn)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);
+				}else if(textField_insertSsn.getText().toString().length() != 9){
+					JOptionPane.showMessageDialog(frame, "9자리 숫자를 입력하세요.(Ssn)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);
+				}else {
+					JOptionPane.showMessageDialog(frame, "데이터가 삽입되었습니다.");
+				}
 				// 쿼리문 초기화
 				insertQuery = "insert into EMPLOYEE value(";
-				
-			
 			}
 		});
 
