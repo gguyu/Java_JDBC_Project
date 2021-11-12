@@ -19,6 +19,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
 
+import java.util.regex.Pattern;
+
 public class InsertSetting {
 
 	private JFrame frame;
@@ -42,20 +44,6 @@ public class InsertSetting {
 	 * Launch the application.
 	 */
 	
-	/*
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					InsertSetting window = new InsertSetting();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-	*/
 	
 	public void launch() {
 		EventQueue.invokeLater(new Runnable() {
@@ -307,24 +295,127 @@ public class InsertSetting {
 				CompanyDB companyDB_insert = new CompanyDB(insertQuery, password);
 				companyDB_insert.insertDB(eString);
 				
+				// 예외처리
+				// 작동 O
 				if(textField_insertFname.getText().equals(emptyText)) {
 					JOptionPane.showMessageDialog(frame, "필수 입력항목입니다.(First Name)", "ERROR",
-							JOptionPane.ERROR_MESSAGE);
-				}else if(textField_insertLname.getText().equals(emptyText)) {
+							JOptionPane.ERROR_MESSAGE);  // Fname not null
+					
+				} 
+				// 작동 X
+				else if(!Pattern.matches("^[a-zA-Z|가-힣]*$", textField_insertFname.getText())) {
+					JOptionPane.showMessageDialog(frame, "한글이나 영어로된 이름을 입력하세요.(First Name)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Fname은 한글이나 영어만 가능
+					
+				} 
+				// 작동 O
+				else if(textField_insertFname.getText().length() > 15) {
+					JOptionPane.showMessageDialog(frame, "이름이 너무 깁니다. 15자 이하로 입력하세요.(First Name)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Fname 은 VARCHAR(15)
+					
+				}/*
+				// 작동 X
+				else if (!Pattern.matches("^[a-z|A-Z|가-힣]*$", textField_insertMinit.getText())) {
+					JOptionPane.showMessageDialog(frame, "한글이나 영어로된 이름을 입력하세요.(Minit)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Minit은 한글이나 영어만 가능
+					
+				} */
+				// 작동 O
+				else if(textField_insertMinit.getText().length() > 1){
+					JOptionPane.showMessageDialog(frame, "한 글자만 입력하세요.(Minit)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Minit은 CHAR
+					
+				}
+				// 작동 O
+				else if(textField_insertLname.getText().equals(emptyText)) {
 					JOptionPane.showMessageDialog(frame, "필수 입력항목입니다.(Last Name)", "ERROR",
-							JOptionPane.ERROR_MESSAGE);
-				}else if(textField_insertSsn.getText().equals(emptyText)) {
+							JOptionPane.ERROR_MESSAGE);  // Lname not null
+					
+				} /*
+				// 작동 X
+				else if(!Pattern.matches("^[a-z|A-Z|가-힣]*S", textField_insertLname.getText())) {
+					JOptionPane.showMessageDialog(frame, "한글이나 영어로된 이름을 입력하세요.(Last Name)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Lname은 한글이나 영어만 가능
+					
+				} */
+				// 작동 O
+				else if(textField_insertLname.getText().length() > 15) {
+					JOptionPane.showMessageDialog(frame, "이름이 너무 깁니다. 15자 이하로 입력하세요.(Last Name)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Lname 은 VARCHAR(15)
+					
+				}
+				// 작동 O
+				else if(textField_insertSsn.getText().equals(emptyText)) {
 					JOptionPane.showMessageDialog(frame, "필수 입력항목입니다.(ssn)", "ERROR",
-							JOptionPane.ERROR_MESSAGE);
-				}else if(ssnResult.contains(textField_insertSsn.getText())){
+							JOptionPane.ERROR_MESSAGE);  // Ssn not null
+					
+				} /*
+				// 작동 X
+				else if(!Pattern.matches("^[0-9]*S", textField_insertSsn.getText())) {
+					JOptionPane.showMessageDialog(frame, "9자리 숫자를 입력하세요22.(ssn)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Ssn은 숫자만 가능
+					
+				} */
+				// 작동 O
+				else if(ssnResult.contains(textField_insertSsn.getText())){
 					JOptionPane.showMessageDialog(frame, "중복되는 값이 존재합니다.(Ssn)", "ERROR",
-							JOptionPane.ERROR_MESSAGE);
-				}else if(textField_insertSsn.getText().toString().length() != 9){
+							JOptionPane.ERROR_MESSAGE);  // Ssn primary key
+					
+				} 
+				// 작동 O
+				else if(textField_insertSsn.getText().length() != 9){
 					JOptionPane.showMessageDialog(frame, "9자리 숫자를 입력하세요.(Ssn)", "ERROR",
-							JOptionPane.ERROR_MESSAGE);
-				}else {
+							JOptionPane.ERROR_MESSAGE);  // Ssn은 CHAR(9)
+					
+				} /*
+				// 작동 X
+				else if(!Pattern.matches("^(19|20\\d{2}-(0[1-9]|1[012])-(0[1-0]|[12][0-9]|3[01]*S", textField_insertBdate.getText())) {
+					JOptionPane.showMessageDialog(frame, "yyyy-mm-dd 형식에 맞게 정확한 생일을 입력하세요.(Bdate)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Bdate 는 date 타입 (yyyy-mm-dd)
+					
+				} */
+				// 작동 O
+				else if(textField_insertAddress.getText().length() > 30) {
+					JOptionPane.showMessageDialog(frame, "주소가 너무 깁니다. 30자 이하로 입력하세요.(Address)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Address 는 VARCHAR(30)
+					
+				} /*
+				// 작동X
+				else if(!Pattern.matches("[+-]?\\\\d*(\\\\.\\\\d+)?", textField_insertSalary.getText())) {
+					JOptionPane.showMessageDialog(frame, "연봉을 숫자로 입력하세요. 30자 이하로 입력하세요.(Salary)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Salary 는 Decimal(10, 2);
+					
+				} *//*
+				// 작동X
+				else if(!textField_insertSup_ssn.getText().equals(emptyText)) {
+					if(!ssnResult.contains(textField_insertSup_ssn.getText())) {
+						JOptionPane.showMessageDialog(frame, "Super_ssn 에 해당하는 직원이 없습니다. 상사의 Ssn을 맞게 입력해주세요.(Super_ssn)", "ERROR",
+								JOptionPane.ERROR_MESSAGE);  // FK (Super_ssn) - PK (Ssn)
+					}
+				} *//*
+				// 작동X
+				else if(!Pattern.matches("^[0-9]*S", textField_insertSup_ssn.getText())) {
+					JOptionPane.showMessageDialog(frame, "9자리 숫자를 입력하세요.(Super_ssn)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Super_ssn은 숫자만 가능
+					
+				}*/
+				else if(!textField_insertSup_ssn.getText().equals(emptyText)){
+					if(textField_insertSup_ssn.getText().toString().length() != 9) {
+						JOptionPane.showMessageDialog(frame, "9자리 숫자를 입력하세요.(Super_ssn)", "ERROR",
+								JOptionPane.ERROR_MESSAGE);  // Super_ssn은 CHAR(9)
+					}
+					
+				} /*
+				// 작동 X
+				else if(!Pattern.matches("^(1|4|5)*S", textField_insertDno.getText())) {
+					JOptionPane.showMessageDialog(frame, "정확한 부서 번호 숫자를 입력하세요.(Dno)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Dno 는 INT, 기존에 있는 부서 번호만 선택 가능 (1, 4, 5)
+					
+				} */
+				else {
 					JOptionPane.showMessageDialog(frame, "데이터가 삽입되었습니다.");
 				}
+				
 				// 쿼리문 초기화
 				insertQuery = "insert into EMPLOYEE value(";
 			}

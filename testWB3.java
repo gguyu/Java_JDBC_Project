@@ -46,7 +46,7 @@ public class testWB3 {
 	private JCheckBox chckbxSearchSupervisor;
 	private JCheckBox chckbxSearchDepartment;
 	
-	// Login 창 띄우기 11/9 01:06 수정사항 -황규진 - initialize() 함수 초반에 실행
+	
 	private void loginFrame() {
 		frameLogin = new JFrame();
 		frameLogin.setBounds(100, 100, 310, 180);
