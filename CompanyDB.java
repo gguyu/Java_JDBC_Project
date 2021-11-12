@@ -178,6 +178,7 @@ public class CompanyDB {
 	// 삽입 연산 함수
 	public String insertDB(String eString) { //구름
 		String eMessage = ""; //구름
+		ResultSet rs;
 		
 		try {
 			// url 과 사용자, 비밀번호로 Connection 객체 생성
@@ -189,7 +190,18 @@ public class CompanyDB {
 			pstmt = con.prepareStatement(insertQuery);
 			pstmt.executeUpdate();
 			
+			// ssnResult 반영
+			ssnResult = new HashSet<String>();
+			stmt = con.createStatement();
+			rs = stmt.executeQuery("select Ssn from EMPLOYEE");
+			
+			while(rs.next()) {
+				ssnResult.add(rs.getString("Ssn").toString());
+			}
+			
 			// 해제
+			rs.close();
+			stmt.close();
 			pstmt.close();
 			
 			

@@ -495,6 +495,15 @@ public class testWB3 {
 						idxSsn++;
 					}
 
+					
+					// 만약 부하직원이 있는 직원은 삭제 불가 (super_ssn 이 다른 ssn 들 중에 같은게 있으면 삭제 불가)
+					// 만약 ssn 이 department 의 mgr_ssn 과 같으면 삭제 불가
+					// 만약 ssn 이 works_on 의 essn 과 같으면 삭제 불가
+					
+					
+					
+					
+					
 					// sql 객체 생성 (생성자에 deleteSsn array 와 cntDeleteSsn 넘겨주기 / cntDelete 만큼
 					// deleteQuery[i] 삭제 반복 수행
 
