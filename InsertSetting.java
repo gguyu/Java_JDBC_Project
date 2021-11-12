@@ -425,7 +425,7 @@ public class InsertSetting {
 					JOptionPane.showMessageDialog(frame, "주소가 너무 깁니다. 30자 이하로 입력하세요.(Address)", "ERROR",
 							JOptionPane.ERROR_MESSAGE);  // Address 는 VARCHAR(30)
 					
-				}else if(!textField_insertSalary.getText().equals(emptyText) && !Pattern.matches("^(\\d)*(\\.(\\d)?(\\d)?)?$", textField_insertSalary.getText())) {
+				}else if(!textField_insertSalary.getText().equals(emptyText) && !Pattern.matches("^(\\d){1,10}(\\.(\\d)(\\d)?)?$", textField_insertSalary.getText())) {
 					JOptionPane.showMessageDialog(frame, "연봉을 숫자로 입력하세요. 10자 이하(+ 소수점 둘째자리까지 가능)로 입력하세요.(Salary)", "ERROR",
 							JOptionPane.ERROR_MESSAGE);  // Salary 는 Decimal(10, 2);
 					
@@ -445,9 +445,13 @@ public class InsertSetting {
 					JOptionPane.showMessageDialog(frame, "Super_ssn 에 해당하는 직원이 없습니다. 상사의 Ssn을 맞게 입력해주세요.(Super_ssn)", "ERROR",
 							JOptionPane.ERROR_MESSAGE);  // FK (Super_ssn) - PK (Ssn)
 					
-				}else if(!textField_insertDno.getText().equals(emptyText) && !Pattern.matches("^(1|4|5)*$", textField_insertDno.getText())) {
-					JOptionPane.showMessageDialog(frame, "정확한 부서 번호 숫자를 입력하세요.(Dno)", "ERROR",
-							JOptionPane.ERROR_MESSAGE);  // Dno 는 INT, 기존에 있는 부서 번호만 선택 가능 (1, 4, 5)
+				}else if(!textField_insertDno.getText().equals(emptyText) && !Pattern.matches("^(\\d)*$", textField_insertDno.getText())) {
+					JOptionPane.showMessageDialog(frame, "부서 번호를 숫자로 입력하세요.(Dno)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // Dno 는 INT
+					
+				}else if(!textField_insertDno.getText().equals(emptyText) && !dnoList.contains(Integer.parseInt(textField_insertDno.getText()))) {
+					JOptionPane.showMessageDialog(frame, "정확한 부서 번호를 입력하세요.(Dno)", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // 기존에 있는 부서 번호만 선택 가능 (query에서 실시간으로 현재 있는 DEPARTMENT.Dnumber 를 받아와서 비교함)
 					
 				}else {
 					// CompanyDB 객체 생성해서 생성자로 insertQuery 넘겨줘서 삽입 쿼리 실행하기

@@ -26,7 +26,7 @@ public class CompanyDB {
 	// GUI 에서 table 만들 때 String array를 반환받아서 사용
 	private Object[][] searchResult;
 	private String[] attributes;
-	static HashSet<String> ssnResult;
+	static HashSet<String> ssnResult, works_onEssnResult, department_Mgr_ssnResult, employee_Super_ssnResult;
 	
 	// ResultSet 에서 개수 구해주는 method 가 없어서 행 개수 구하기 위한 쿼리를 따로 둠
 	private String getCountQuery = "select count(*), concat(e.Fname, e.Minit, e.Lname) as Name, e.Ssn, e.Bdate, e.Address, e.Sex, e.Salary, concat(s.Fname, s.Minit, s.Lname) as Supervisor, d.Dname as Department"
@@ -145,8 +145,28 @@ public class CompanyDB {
 				count_rows++;
 			}
 			
-
+			// 예외처리용
+			// employee의 ssn을 참조하고 있는 것들을 확인하기 (gui에서 delete할 때 이용할 목적
+			works_onEssnResult = new HashSet<String>();
+			rs = stmt.executeQuery("select Essn from WORKS_ON");
+			while(rs.next()) {
+				works_onEssnResult.add(rs.getString("Essn").toString());
+				
+			}
 			
+			department_Mgr_ssnResult = new HashSet<String>();
+			rs = stmt.executeQuery("select Mgr_ssn from DEPARTMENT");
+			while(rs.next()) {
+				department_Mgr_ssnResult.add(rs.getString("Mgr_ssn").toString());
+				
+			}
+			
+			employee_Super_ssnResult = new HashSet<String>();
+			rs = stmt.executeQuery("select Super_ssn from EMPLOYEE");
+			while(rs.next()) {
+				employee_Super_ssnResult.add(rs.getString("Super_ssn"));
+				
+			}
 			
 			// 해제
 			rs.close();

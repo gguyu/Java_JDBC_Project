@@ -13,12 +13,14 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class testWB3 {
 
 	protected JFrame frame, frameLogin;
 	private JTextField textField_salary; // 연봉 검색창 객체
 	private JTextField textField_sub; // 부하직원 검색창 객체
+	private JComboBox comboBox_searchRange; // 검색 범위 콤보박스 객체
 	private JTable dataTable; // DB table 객체
 	private JPanel panel_1;
 
@@ -32,6 +34,11 @@ public class testWB3 {
 	private JLabel selectedEmpLb, selectedCountLb, avgSalLb;
 	private DefaultTableModel tableModel;
 	private Set<String> selectedEmp, selectedSsn;
+	
+	// 삭제 예외처리용
+	private HashSet<String> employee_Super_ssnResult = CompanyDB.employee_Super_ssnResult;
+	private HashSet<String> department_Mgr_ssnResult = CompanyDB.department_Mgr_ssnResult;
+	private HashSet<String> works_onEssnResult = CompanyDB.works_onEssnResult;
 
 	// MySQL 로그인 기능
 	private String password = "root"; // 비밀번호 선택 창 입력안하고 끄면 우선 default 로 root
@@ -171,8 +178,7 @@ public class testWB3 {
 
 		// 부서
 		JComboBox comboBox_department = new JComboBox();
-		comboBox_department
-				.setModel(new DefaultComboBoxModel(new String[] { "Research", "Administration", "Headquarters" }));
+		comboBox_department.setModel(new DefaultComboBoxModel(new String[] { "Research", "Administration", "Headquarters" }));
 		comboBox_department.setBounds(150, 16, 107, 23);
 		panel.add(comboBox_department);
 		comboBox_department.setVisible(false);
@@ -275,7 +281,7 @@ public class testWB3 {
 		textField_sub.setVisible(false);
 
 		// 상위 combobox 의 상태에 따라 하위 combobox 와 textfield 결정
-		JComboBox comboBox_searchRange = new JComboBox();
+		comboBox_searchRange = new JComboBox();
 
 		// 전체 => 콤보박스 X / 부서, 성별, 생일 => 콤보박스 O / 연봉, 부하직원 => 입력칸 O
 		comboBox_searchRange.setModel(new DefaultComboBoxModel(new String[] { "전체", "부서", "성별", "연봉", "생일", "부하직원" }));
@@ -336,7 +342,7 @@ public class testWB3 {
 					comboBox_sex.setSelectedIndex(0);
 					comboBox_bdate.setSelectedIndex(0);
 					textField_sub.setText(null);
-					whereClause = null;
+					whereClause = " where e.Salary > 0";
 				}
 
 				else if (comboBox_searchRange.getSelectedItem() == "생일") {
@@ -415,7 +421,7 @@ public class testWB3 {
 		panel.add(chckbxSearchDepartment);
 
 		// 검색 버튼 구현
-		btnSearch = new JButton("\uAC80\uC0C9");
+		btnSearch = new JButton("검색");
 		btnSearch.setForeground(SystemColor.desktop);
 		btnSearch.setBounds(837, 42, 107, 30);
 		panel.add(btnSearch);
@@ -483,10 +489,10 @@ public class testWB3 {
 			public void actionPerformed(ActionEvent e) {
 				int cntDeleteSsn = selectedSsn.size(); // 선택된 직원 수
 
-				if (selectedSsn.isEmpty()) {
+				if (selectedSsn.isEmpty()) {  // 예외처리; 선택된 직원이 없으면 에러창 띄우고 삭제 실행 X
 					JOptionPane.showMessageDialog(frame, "선택된 직원이 없습니다. 선택되어 있다면 검색 항목에 'Ssn'이 선택되어있는지 확인하세요.", "ERROR",
 							JOptionPane.ERROR_MESSAGE);
-				} else {
+				}else {
 					Iterator<String> iter_selectedSsn = selectedSsn.iterator();
 					String[] deleteSsn = new String[cntDeleteSsn]; // 배열 사이즈는 선택된 직원의 수
 					int idxSsn = 0;
@@ -494,18 +500,56 @@ public class testWB3 {
 						deleteSsn[idxSsn] = iter_selectedSsn.next();
 						idxSsn++;
 					}
-
-					// sql 객체 생성 (생성자에 deleteSsn array 와 cntDeleteSsn 넘겨주기 / cntDelete 만큼
-					// deleteQuery[i] 삭제 반복 수행
-
-					CompanyDB companyDB = new CompanyDB(deleteSsn, cntDeleteSsn, password);
-					companyDB.deleteDB();
-					JOptionPane.showMessageDialog(frame, "데이터가 삭제되었습니다.");
-					searching(e);
+					
+					// 예외처리
+					employee_Super_ssnResult = CompanyDB.employee_Super_ssnResult;
+					department_Mgr_ssnResult = CompanyDB.department_Mgr_ssnResult;
+					works_onEssnResult = CompanyDB.works_onEssnResult;
+					
+					int exceptnum = 0;
+					
+					// 만약 WOKRS_ON 테이블의 Essn 에게 참조되고 있는 직원은 삭제 불가
+					iter_selectedSsn = selectedSsn.iterator();
+					while (iter_selectedSsn.hasNext()) {
+						if (works_onEssnResult.contains(iter_selectedSsn.next())) {
+							exceptnum = 1;  // WORKS_ON 의 Essn 에 겹치면 exception = 1 로 변경
+						}
+					}
+					// 만약 DEPARTMENT 테이블의 Mgr_ssn 에게 참조되고 있는 직원은 삭제 불가
+					iter_selectedSsn = selectedSsn.iterator();
+					while (iter_selectedSsn.hasNext()) {
+						if (department_Mgr_ssnResult.contains(iter_selectedSsn.next())) {
+							exceptnum = 2;  // DEPARTMENT 의 Mgr_ssn 에 겹치면 exception = 2 로 변경
+						}
+					}
+					// 만약 부하직원이 있는 직원은 삭제 불가 (super_ssn 이 다른 ssn 들 중에 같은게 있으면 삭제 불가)
+					iter_selectedSsn = selectedSsn.iterator();
+					while (iter_selectedSsn.hasNext()) {
+						if (employee_Super_ssnResult.contains(iter_selectedSsn.next())) {
+							exceptnum = 3;  // EMPLOYEE의 super_Ssn 에 겹치면 exception = 1 로 변경
+						}
+					}
+					
+					if (exceptnum == 1) {
+						JOptionPane.showMessageDialog(frame, "일한 기록이 남아있는 직원은 삭제할 수 없습니다. 확인해주세요. (WORKS_ON.Essn)", "ERROR",
+								JOptionPane.ERROR_MESSAGE);
+					} else if (exceptnum == 2) {
+						JOptionPane.showMessageDialog(frame, "부서의 매니저인 직원은 삭제할 수 없습니다. 확인해주세요. (DEPARTMENT.Mgr_ssn)", "ERROR",
+								JOptionPane.ERROR_MESSAGE);
+					} else if (exceptnum == 3) {
+						JOptionPane.showMessageDialog(frame, "다른 직원의 상사인 직원은 삭제할 수 없습니다. 확인해주세요. (Supervisor or EMPLOYEE.Super_ssn)", "ERROR",
+								JOptionPane.ERROR_MESSAGE);
+					} else {
+						// sql 객체 생성 (생성자에 deleteSsn array 와 cntDeleteSsn 넘겨주기 / cntDelete 만큼
+						// deleteQuery[i] 삭제 반복 수행
+						CompanyDB companyDB = new CompanyDB(deleteSsn, cntDeleteSsn, password);
+						companyDB.deleteDB();
+						JOptionPane.showMessageDialog(frame, "데이터가 삭제되었습니다.");
+						searching(e);
+					}
+					
 				}
-
 				// 예외처리되면 에러메세지만 출력, 정상적으로 작동되면 delete 연산 수행 완료
-
 			}
 		});
 
@@ -620,7 +664,10 @@ public class testWB3 {
 		if (!textField_salary.getText().equals(emptyText)) { // salary textfield 에 값이 있으면 where 절 작성
 			String salaryText = textField_salary.getText();
 			whereClause = " where e.Salary > " + salaryText;
-		} else if (!textField_sub.getText().equals(emptyText)) { // sub textfield 에 값이 있으면 where 절 작성
+		} else if(comboBox_searchRange.getSelectedItem() == "연봉" && textField_salary.getText().equals(emptyText)) {
+			whereClause = " where e.Salary > 0"; 
+		} 
+		else if (!textField_sub.getText().equals(emptyText)) { // sub textfield 에 값이 있으면 where 절 작성
 			String subText = textField_sub.getText();
 			whereClause = " where e.Super_ssn = '" + subText + "'";
 		}
@@ -636,7 +683,7 @@ public class testWB3 {
 				selectStatement = "select ";
 			}
 			cntSelect++;
-			selectStatement += "concat(e.Fname, IFNULL(e.Minit, \"\"), e.Lname) as Name";
+			selectStatement += "concat(e.Fname, \" \", IFNULL(e.Minit, \"\"), \" \", e.Lname) as Name";
 		}
 
 		if (chckbxSearchSsn.isSelected()) { // Ssn 이 체크되면 실행
@@ -696,7 +743,7 @@ public class testWB3 {
 				selectStatement = "select ";
 			}
 			cntSelect++;
-			selectStatement += "concat(s.Fname, IFNULL(s.Minit, \"\"), s.Lname) as Supervisor";
+			selectStatement += "concat(s.Fname, \" \", IFNULL(s.Minit, \"\"), \" \", s.Lname) as Supervisor";
 		}
 
 		if (chckbxSearchDepartment.isSelected()) { // Department 가 체크되면 실행
@@ -770,7 +817,15 @@ public class testWB3 {
 		selectedEmpLb.setText("선택한 직원 :");
 		selectedCountLb.setText("인원 수 :");
 		avgSalLb.setText("선택한 직원 평균 임금 : ");
-
+		
+		// 검색 항목이 없을 때는 에러 메세지 띄우고 검색 실행 X
+		if(!(chckbxSearchName.isSelected() || chckbxSearchSsn.isSelected() || chckbxSearchBdate.isSelected() || chckbxSearchAddress.isSelected() 
+				|| chckbxSearchSex.isSelected() || chckbxSearchSalary.isSelected() || chckbxSearchSupervisor.isSelected() || chckbxSearchDepartment.isSelected())) {
+			JOptionPane.showMessageDialog(frame, "검색 항목에 아무것도 체크되지 않았습니다. 다시 확인해주세요! (검색 항목)", "ERROR",
+					JOptionPane.ERROR_MESSAGE);  // 검색 항목에 아무것도 체크되지 않았을 때
+			return;
+		} 
+		
 		// table 만들기
 		CompanyDB companyDB = new CompanyDB(selectStatement, whereClause, columnCnt + 1, password, selectAttribute);
 
@@ -782,11 +837,14 @@ public class testWB3 {
 		}
 
 		tableModel.setDataVector(companyDB.searchDB(), selectAttribute);
+		
 
 		// checkBox 생성
 		dataTable.getColumn("선택").setCellRenderer(dcr);
 		JCheckBox checkBox = new JCheckBox();
 		checkBox.setHorizontalAlignment(JLabel.CENTER);
+		
+		
 
 		// 선택한 직원, 인원 수
 		selectedEmp = new LinkedHashSet<>(); // 선택된 직원 정보 라벨에 사용
@@ -819,9 +877,6 @@ public class testWB3 {
 				}
 
 				// 평균 임금 연산
-				
-				
-					
 				CompanyDB companyDB = new CompanyDB(password);
 				float avg = companyDB.retAvgSal(selectedSsn);
 				
