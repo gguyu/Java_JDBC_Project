@@ -9,32 +9,32 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.Arrays;
 
 public class testWB3 {
 
 	protected JFrame frame, frameLogin;
-	private JTextField textField_salary; // ¿¬ºÀ °Ë»öÃ¢ °´Ã¼
-	private JTextField textField_sub; // ºÎÇÏÁ÷¿ø °Ë»öÃ¢ °´Ã¼
-	private JTable dataTable; // DB table °´Ã¼
+	private JTextField textField_salary; // ì—°ë´‰ ê²€ìƒ‰ì°½ ê°ì²´
+	private JTextField textField_sub; // ë¶€í•˜ì§ì› ê²€ìƒ‰ì°½ ê°ì²´
+	private JTable dataTable; // DB table ê°ì²´
 	private JPanel panel_1;
 
-	// °Ë»ö Ç×¸ñ: checkbox ¿¡¼­ ¹Ş¾Æ¿Ã °ÍÀÓ
+
 	private String selectStatement;
 	private String fromStatement;
-	private String whereClause; // null ÀÌ¸é whereÀı ¾øÀ½
+	private String whereClause; // null ì´ë©´ whereì ˆ ì—†ìŒ
 	private String[] selectAttribute;
-	// °Ë»ö ¹üÀ§: combobox ³ª textfield ¿¡¼­ ¹Ş¾Æ¿Ã °ÍÀÓ, default ´Â ÀüÃ¼ÀÌ¹Ç·Î ÃÊ±â°ªÀº null
+
 	private JButton btnSearch;
 	private JLabel selectedEmpLb, selectedCountLb, avgSalLb;
 	private DefaultTableModel tableModel;
 	private Set<String> selectedEmp, selectedSsn;
 
-	// MySQL ·Î±×ÀÎ ±â´É
-	private String password = "root"; // ºñ¹Ğ¹øÈ£ ¼±ÅÃ Ã¢ ÀÔ·Â¾ÈÇÏ°í ²ô¸é ¿ì¼± default ·Î root
+	// MySQL ë¡œê·¸ì¸ ê¸°ëŠ¥
+	private String password = "root"; // ë¹„ë°€ë²ˆí˜¸ ì„ íƒ ì°½ ì…ë ¥ì•ˆí•˜ê³  ë„ë©´ ìš°ì„  default ë¡œ root
 	private JTextField textField_Password;
 
 	private JCheckBox chckbxSearchName;
@@ -46,15 +46,15 @@ public class testWB3 {
 	private JCheckBox chckbxSearchSupervisor;
 	private JCheckBox chckbxSearchDepartment;
 	
-	
+	// Login ì°½ ë„ìš°ê¸°
 	private void loginFrame() {
 		frameLogin = new JFrame();
 		frameLogin.setBounds(100, 100, 310, 180);
 		frameLogin.getContentPane().setLayout(null);
 		frameLogin.setLocationRelativeTo(null);
-		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); ÀÌ°Ô ÀÖÀ¸¸é Ã¢´İ¾ÒÀ» ¶§ ²¨Áü.
+
 		frameLogin.setVisible(true);
-		frameLogin.setAlwaysOnTop(true); // Ã¢À» ¸Ç ¾Õ¿¡ ³ª¿À°Ô ÇÔ
+		frameLogin.setAlwaysOnTop(true); // ì°½ì„ ë§¨ ì•ì— ë‚˜ì˜¤ê²Œ í•¨
 
 		JPanel panelPw = new JPanel();
 		panelPw.setBounds(0, 0, 285, 115);
@@ -62,7 +62,7 @@ public class testWB3 {
 		panelPw.setLayout(null);
 
 		JLabel lblTitleLabel = new JLabel("MySQL Login");
-		lblTitleLabel.setFont(new Font("±¼¸²", Font.BOLD, 16));
+		lblTitleLabel.setFont(new Font("êµ´ë¦¼", Font.BOLD, 16));
 		lblTitleLabel.setBounds(81, 10, 113, 24);
 		panelPw.add(lblTitleLabel);
 
@@ -90,18 +90,18 @@ public class testWB3 {
 					System.out.println(password);
 					frameLogin.dispose();
 				} else {
-					JOptionPane.showMessageDialog(frameLogin, "password ¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.", "Login Error",
+					JOptionPane.showMessageDialog(frameLogin, "password ë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”.", "Login Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
 
-		JLabel lblPwtelLabel = new JLabel("Password ¸¦ Á¤È®È÷ ÀÔ·ÂÇÏ¼¼¿ä");
+		JLabel lblPwtelLabel = new JLabel("Password ë¥¼ ì •í™•íˆ ì…ë ¥í•˜ì„¸ìš”");
 		lblPwtelLabel.setForeground(Color.RED);
 		lblPwtelLabel.setBounds(52, 100, 250, 15);
 		panelPw.add(lblPwtelLabel);
 
-		// ·Î±×ÀÎ ¹öÆ°À» ´©¸£¸é ·Î±×ÀÎ Ã¢ ´İÀ½ (ºñ¹Ğ¹øÈ£°¡ ÀÔ·ÂÀÌ ¾ÈµÇ¾îÀÖÀ¸¸é ÀÔ·ÂÇÒ ¶§±îÁö ¾È´İÈû)
+		// ë¡œê·¸ì¸ ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ ë¡œê·¸ì¸ ì°½ ë‹«ìŒ (ë¹„ë°€ë²ˆí˜¸ê°€ ì…ë ¥ì´ ì•ˆë˜ì–´ìˆìœ¼ë©´ ì…ë ¥í•  ë•Œê¹Œì§€ ì•ˆë‹«í˜)
 		JButton btnLogin = new JButton("Login");
 		btnLogin.setBounds(206, 44, 67, 43);
 		panelPw.add(btnLogin);
@@ -113,12 +113,12 @@ public class testWB3 {
 					System.out.println(password);
 					frameLogin.dispose();
 				} else {
-					JOptionPane.showMessageDialog(frameLogin, "password ¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.", "Login Error",
+					JOptionPane.showMessageDialog(frameLogin, "password ë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”.", "Login Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
-	} // Login Ã¢ ³¡
+	} // Login ì°½ ë
 
 	/**
 	 * Launch the application.
@@ -155,21 +155,21 @@ public class testWB3 {
 		frame.getContentPane().setLayout(null);
 		frame.setLocationRelativeTo(null);
 
-		// Login Ã¢ ¶ç¿ì±â
+		// Login ì°½ ë„ìš°ê¸°
 
-		// °Ë»ö Á¶°Ç panel
+		// ê²€ìƒ‰ ì¡°ê±´ panel
 		JPanel panel = new JPanel();
 		panel.setBounds(0, 0, 986, 83);
 		frame.getContentPane().add(panel);
 		panel.setLayout(null);
 
-		JLabel lblNewLabel = new JLabel("°Ë»ö ¹üÀ§");
+		JLabel lblNewLabel = new JLabel("ê²€ìƒ‰ ë²”ìœ„");
 		lblNewLabel.setBounds(12, 20, 57, 15);
 		panel.add(lblNewLabel);
 
-		// °Ë»ö ¹üÀ§ ±¸Çö
+		// ê²€ìƒ‰ ë²”ìœ„ êµ¬í˜„
 
-		// ºÎ¼­
+		// ë¶€ì„œ
 		JComboBox comboBox_department = new JComboBox();
 		comboBox_department
 				.setModel(new DefaultComboBoxModel(new String[] { "Research", "Administration", "Headquarters" }));
@@ -189,7 +189,7 @@ public class testWB3 {
 			}
 		});
 
-		// ¼ºº°
+		// ì„±ë³„
 		JComboBox comboBox_sex = new JComboBox();
 		comboBox_sex.setModel(new DefaultComboBoxModel(new String[] { "M", "F" }));
 		comboBox_sex.setBounds(265, 16, 53, 23);
@@ -206,14 +206,14 @@ public class testWB3 {
 			}
 		});
 
-		// ¿¬ºÀ
+		// ì—°ë´‰
 		textField_salary = new JTextField();
 		textField_salary.setBounds(330, 17, 116, 21);
 		panel.add(textField_salary);
 		textField_salary.setColumns(10);
 		textField_salary.setVisible(false);
 
-		// »ıÀÏ
+		// ìƒì¼
 		JComboBox comboBox_bdate = new JComboBox();
 		comboBox_bdate.setModel(new DefaultComboBoxModel(
 				new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }));
@@ -262,29 +262,29 @@ public class testWB3 {
 					whereClause = " where e.Bdate like '_____12%'";
 					break;
 
-				} // swith ¹® ³¡
+				} // swith ë¬¸ ë
 
 			}
 		});
 
-		// ºÎÇÏÁ÷¿ø
+		// ë¶€í•˜ì§ì›
 		textField_sub = new JTextField();
 		textField_sub.setBounds(517, 17, 123, 21);
 		panel.add(textField_sub);
 		textField_sub.setColumns(10);
 		textField_sub.setVisible(false);
 
-		// »óÀ§ combobox ÀÇ »óÅÂ¿¡ µû¶ó ÇÏÀ§ combobox ¿Í textfield °áÁ¤
+		// ìƒìœ„ combobox ì˜ ìƒíƒœì— ë”°ë¼ í•˜ìœ„ combobox ì™€ textfield ê²°ì •
 		JComboBox comboBox_searchRange = new JComboBox();
 
-		// ÀüÃ¼ => ÄŞº¸¹Ú½º X / ºÎ¼­, ¼ºº°, »ıÀÏ => ÄŞº¸¹Ú½º O / ¿¬ºÀ, ºÎÇÏÁ÷¿ø => ÀÔ·ÂÄ­ O
-		comboBox_searchRange.setModel(new DefaultComboBoxModel(new String[] { "ÀüÃ¼", "ºÎ¼­", "¼ºº°", "¿¬ºÀ", "»ıÀÏ", "ºÎÇÏÁ÷¿ø" }));
+		// ì „ì²´ => ì½¤ë³´ë°•ìŠ¤ X / ë¶€ì„œ, ì„±ë³„, ìƒì¼ => ì½¤ë³´ë°•ìŠ¤ O / ì—°ë´‰, ë¶€í•˜ì§ì› => ì…ë ¥ì¹¸ O
+		comboBox_searchRange.setModel(new DefaultComboBoxModel(new String[] { "ì „ì²´", "ë¶€ì„œ", "ì„±ë³„", "ì—°ë´‰", "ìƒì¼", "ë¶€í•˜ì§ì›" }));
 		comboBox_searchRange.setBounds(69, 16, 72, 23);
 		panel.add(comboBox_searchRange);
 
 		comboBox_searchRange.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (comboBox_searchRange.getSelectedItem() == "ÀüÃ¼") {
+				if (comboBox_searchRange.getSelectedItem() == "ì „ì²´") {
 					comboBox_department.setVisible(false);
 					comboBox_sex.setVisible(false);
 					textField_salary.setVisible(false);
@@ -298,7 +298,7 @@ public class testWB3 {
 					whereClause = null;
 				}
 
-				else if (comboBox_searchRange.getSelectedItem() == "ºÎ¼­") {
+				else if (comboBox_searchRange.getSelectedItem() == "ë¶€ì„œ") {
 					comboBox_sex.setVisible(false);
 					textField_salary.setVisible(false);
 					comboBox_bdate.setVisible(false);
@@ -312,7 +312,7 @@ public class testWB3 {
 					whereClause = " where e.Dno = 5";
 				}
 
-				else if (comboBox_searchRange.getSelectedItem() == "¼ºº°") {
+				else if (comboBox_searchRange.getSelectedItem() == "ì„±ë³„") {
 					comboBox_department.setVisible(false);
 					textField_salary.setVisible(false);
 					comboBox_bdate.setVisible(false);
@@ -326,7 +326,7 @@ public class testWB3 {
 					whereClause = " where e.Sex = 'M'";
 				}
 
-				else if (comboBox_searchRange.getSelectedItem() == "¿¬ºÀ") {
+				else if (comboBox_searchRange.getSelectedItem() == "ì—°ë´‰") {
 					comboBox_department.setVisible(false);
 					comboBox_sex.setVisible(false);
 					comboBox_bdate.setVisible(false);
@@ -339,7 +339,7 @@ public class testWB3 {
 					whereClause = null;
 				}
 
-				else if (comboBox_searchRange.getSelectedItem() == "»ıÀÏ") {
+				else if (comboBox_searchRange.getSelectedItem() == "ìƒì¼") {
 					comboBox_department.setVisible(false);
 					comboBox_sex.setVisible(false);
 					textField_salary.setVisible(false);
@@ -353,7 +353,7 @@ public class testWB3 {
 					whereClause = " where e.Bdate like '_____01%'";
 				}
 
-				else if (comboBox_searchRange.getSelectedItem() == "ºÎÇÏÁ÷¿ø") {
+				else if (comboBox_searchRange.getSelectedItem() == "ë¶€í•˜ì§ì›") {
 					comboBox_department.setVisible(false);
 					comboBox_sex.setVisible(false);
 					textField_salary.setVisible(false);
@@ -369,8 +369,8 @@ public class testWB3 {
 			}
 		});
 
-		// °Ë»ö Ç×¸ñ ±¸Çö
-		JLabel lblNewLabel_1 = new JLabel("°Ë»ö Ç×¸ñ");
+		// ê²€ìƒ‰ í•­ëª© êµ¬í˜„
+		JLabel lblNewLabel_1 = new JLabel("ê²€ìƒ‰ í•­ëª©");
 		lblNewLabel_1.setBounds(12, 50, 57, 15);
 		panel.add(lblNewLabel_1);
 
@@ -414,8 +414,8 @@ public class testWB3 {
 		chckbxSearchDepartment.setBounds(541, 46, 107, 23);
 		panel.add(chckbxSearchDepartment);
 
-		// °Ë»ö ¹öÆ° ±¸Çö
-		btnSearch = new JButton("°Ë»ö");
+		// ê²€ìƒ‰ ë²„íŠ¼ êµ¬í˜„
+		btnSearch = new JButton("\uAC80\uC0C9");
 		btnSearch.setForeground(SystemColor.desktop);
 		btnSearch.setBounds(837, 42, 107, 30);
 		panel.add(btnSearch);
@@ -425,7 +425,7 @@ public class testWB3 {
 			}
 		});
 		
-		// table »ı¼º
+		// table ìƒì„±
 		tableModel = new DefaultTableModel();
 		dataTable = new JTable(tableModel);
 		JScrollPane scrollPane = new JScrollPane(dataTable);
@@ -438,89 +438,79 @@ public class testWB3 {
 		fromStatement = null;
 		whereClause = null;
 
-		// table º¸ÀÌ±â ³¡
+		// table ë³´ì´ê¸° ë
 
-		// »ğÀÔ, »èÁ¦, °»½Å panel
+		// ì‚½ì…, ì‚­ì œ, ê°±ì‹  panel
 		panel_1 = new JPanel();
 		panel_1.setBounds(0, 376, 986, 97);
 		frame.getContentPane().add(panel_1);
 		panel_1.setLayout(null);
 
 		selectedEmpLb = new JLabel();
-		selectedEmpLb.setText("¼±ÅÃÇÑ Á÷¿ø :");
+		selectedEmpLb.setText("ì„ íƒí•œ ì§ì› :");
 		selectedEmpLb.setBounds(14, 12, 1000, 18);
 		panel_1.add(selectedEmpLb);
 		selectedEmpLb.setVisible(false);
 
 		selectedCountLb = new JLabel();
-		selectedCountLb.setText("ÀÎ¿ø ¼ö :");
+		selectedCountLb.setText("ì¸ì› ìˆ˜ :");
 		selectedCountLb.setBounds(14, 42, 100, 18);
 		panel_1.add(selectedCountLb);
 
-		avgSalLb = new JLabel(); // Æò±Õ ÀÓ±İ label
-		avgSalLb.setText("¼±ÅÃÇÑ Á÷¿ø Æò±Õ ÀÓ±İ : ");
+		avgSalLb = new JLabel(); // í‰ê·  ì„ê¸ˆ label
+		avgSalLb.setText("ì„ íƒí•œ ì§ì› í‰ê·  ì„ê¸ˆ : ");
 		avgSalLb.setBounds(14, 70, 545, 15);
 		panel_1.add(avgSalLb);
 
-		// »ğÀÔ ¹öÆ°
-		JButton btnInsertDisp = new JButton("»õ·Î¿î µ¥ÀÌÅÍ »ğÀÔ"); // ¹öÆ° ´©¸£¸é »ğÀÔÇÏ´Â »õ·Î¿î ·¹ÀÌ¾Æ¿ô º¸¿©ÁÜ
+		// ì‚½ì… ë²„íŠ¼
+		JButton btnInsertDisp = new JButton("ìƒˆë¡œìš´ ë°ì´í„° ì‚½ì…"); // ë²„íŠ¼ ëˆ„ë¥´ë©´ ì‚½ì…í•˜ëŠ” ìƒˆë¡œìš´ ë ˆì´ì•„ì›ƒ ë³´ì—¬ì¤Œ
 		btnInsertDisp.setBounds(815, 10, 145, 23);
 		panel_1.add(btnInsertDisp);
 		btnInsertDisp.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				InsertSetting insertSetting = new InsertSetting(password); // »ğÀÔ ·¹ÀÌ¾Æ¿ô °´Ã¼ »ı¼ºÇØ¼­ Ã¢ ¶ç¿ò
+				InsertSetting insertSetting = new InsertSetting(password); // ì‚½ì… ë ˆì´ì•„ì›ƒ ê°ì²´ ìƒì„±í•´ì„œ ì°½ ë„ì›€
 				insertSetting.launch();
 			}
 		});
 
-		// »èÁ¦ ¹öÆ°
-		JButton btnDeleteDisp = new JButton("¼±ÅÃÇÑ µ¥ÀÌÅÍ »èÁ¦"); // ¹öÆ° ´©¸£¸é ¼±ÅÃÇÑ Á÷¿øÀÇ Á¤º¸¸¦ DB¿¡¼­ »èÁ¦
+		// ì‚­ì œ ë²„íŠ¼
+		JButton btnDeleteDisp = new JButton("ì„ íƒí•œ ë°ì´í„° ì‚­ì œ"); // ë²„íŠ¼ ëˆ„ë¥´ë©´ ì„ íƒí•œ ì§ì›ì˜ ì •ë³´ë¥¼ DBì—ì„œ ì‚­ì œ
 		btnDeleteDisp.setBounds(815, 40, 145, 23);
 		panel_1.add(btnDeleteDisp);
 		btnDeleteDisp.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int cntDeleteSsn = selectedSsn.size(); // ¼±ÅÃµÈ Á÷¿ø ¼ö
+				int cntDeleteSsn = selectedSsn.size(); // ì„ íƒëœ ì§ì› ìˆ˜
 
 				if (selectedSsn.isEmpty()) {
-					JOptionPane.showMessageDialog(frame, "¼±ÅÃµÈ Á÷¿øÀÌ ¾ø½À´Ï´Ù. ¼±ÅÃµÇ¾î ÀÖ´Ù¸é °Ë»ö Ç×¸ñ¿¡ 'Ssn'ÀÌ ¼±ÅÃµÇ¾îÀÖ´ÂÁö È®ÀÎÇÏ¼¼¿ä.", "ERROR",
+					JOptionPane.showMessageDialog(frame, "ì„ íƒëœ ì§ì›ì´ ì—†ìŠµë‹ˆë‹¤. ì„ íƒë˜ì–´ ìˆë‹¤ë©´ ê²€ìƒ‰ í•­ëª©ì— 'Ssn'ì´ ì„ íƒë˜ì–´ìˆëŠ”ì§€ í™•ì¸í•˜ì„¸ìš”.", "ERROR",
 							JOptionPane.ERROR_MESSAGE);
 				} else {
 					Iterator<String> iter_selectedSsn = selectedSsn.iterator();
-					String[] deleteSsn = new String[cntDeleteSsn]; // ¹è¿­ »çÀÌÁî´Â ¼±ÅÃµÈ Á÷¿øÀÇ ¼ö
+					String[] deleteSsn = new String[cntDeleteSsn]; // ë°°ì—´ ì‚¬ì´ì¦ˆëŠ” ì„ íƒëœ ì§ì›ì˜ ìˆ˜
 					int idxSsn = 0;
 					while (iter_selectedSsn.hasNext()) {
 						deleteSsn[idxSsn] = iter_selectedSsn.next();
 						idxSsn++;
 					}
 
-					
-					// ¸¸¾à ºÎÇÏÁ÷¿øÀÌ ÀÖ´Â Á÷¿øÀº »èÁ¦ ºÒ°¡ (super_ssn ÀÌ ´Ù¸¥ ssn µé Áß¿¡ °°Àº°Ô ÀÖÀ¸¸é »èÁ¦ ºÒ°¡)
-					// ¸¸¾à ssn ÀÌ department ÀÇ mgr_ssn °ú °°À¸¸é »èÁ¦ ºÒ°¡
-					// ¸¸¾à ssn ÀÌ works_on ÀÇ essn °ú °°À¸¸é »èÁ¦ ºÒ°¡
-					
-					
-					
-					
-					
-					// sql °´Ã¼ »ı¼º (»ı¼ºÀÚ¿¡ deleteSsn array ¿Í cntDeleteSsn ³Ñ°ÜÁÖ±â / cntDelete ¸¸Å­
-					// deleteQuery[i] »èÁ¦ ¹İº¹ ¼öÇà
+					// sql ê°ì²´ ìƒì„± (ìƒì„±ìì— deleteSsn array ì™€ cntDeleteSsn ë„˜ê²¨ì£¼ê¸° / cntDelete ë§Œí¼
+					// deleteQuery[i] ì‚­ì œ ë°˜ë³µ ìˆ˜í–‰
 
 					CompanyDB companyDB = new CompanyDB(deleteSsn, cntDeleteSsn, password);
 					companyDB.deleteDB();
-					System.out.println(selectedSsn.size());
-					JOptionPane.showMessageDialog(frame, "µ¥ÀÌÅÍ°¡ »èÁ¦µÇ¾ú½À´Ï´Ù.");
+					JOptionPane.showMessageDialog(frame, "ë°ì´í„°ê°€ ì‚­ì œë˜ì—ˆìŠµë‹ˆë‹¤.");
 					searching(e);
 				}
 
-				// ¿¹¿ÜÃ³¸®µÇ¸é ¿¡·¯¸Ş¼¼Áö¸¸ Ãâ·Â, Á¤»óÀûÀ¸·Î ÀÛµ¿µÇ¸é delete ¿¬»ê ¼öÇà ¿Ï·á
+				// ì˜ˆì™¸ì²˜ë¦¬ë˜ë©´ ì—ëŸ¬ë©”ì„¸ì§€ë§Œ ì¶œë ¥, ì •ìƒì ìœ¼ë¡œ ì‘ë™ë˜ë©´ delete ì—°ì‚° ìˆ˜í–‰ ì™„ë£Œ
 
 			}
 		});
 
-		// °»½Å ¹öÆ°
-		JLabel lblNewLabel_6 = new JLabel("¼öÁ¤ :");
+		// ê°±ì‹  ë²„íŠ¼
+		JLabel lblNewLabel_6 = new JLabel("ìˆ˜ì • :");
 		lblNewLabel_6.setBounds(311, 40, 45, 18);
 		panel_1.add(lblNewLabel_6);
 
@@ -545,18 +535,18 @@ public class testWB3 {
                 String eMessage = "";
                 
 				if (selectedSsn.isEmpty()) {
-					System.out.println("¿¡·¯¸Ş½ÃÁö Ãâ·Â, ¼±ÅÃµÈ Á÷¿øÀÌ ¾ø½À´Ï´Ù. ¼±ÅÃµÇ¾îÀÖ´Ù¸é °Ë»ö Ç×¸ñ¿¡ 'Ssn' ÀÌ ¼±ÅÃµÇ¾îÀÖ´ÂÁö È®ÀÎÇÏ¼¼¿ä.");
+					System.out.println("ì—ëŸ¬ë©”ì‹œì§€ ì¶œë ¥, ì„ íƒëœ ì§ì›ì´ ì—†ìŠµë‹ˆë‹¤. ì„ íƒë˜ì–´ìˆë‹¤ë©´ ê²€ìƒ‰ í•­ëª©ì— 'Ssn' ì´ ì„ íƒë˜ì–´ìˆëŠ”ì§€ í™•ì¸í•˜ì„¸ìš”.");
 				} else {
 					Iterator<String> iter_selectedSsn = selectedSsn.iterator();
-					String[] updateSsn = new String[cntUpdateSsn]; // ¹è¿­ »çÀÌÁî´Â ¼±ÅÃµÈ Á÷¿øÀÇ ¼ö
+					String[] updateSsn = new String[cntUpdateSsn]; // ë°°ì—´ ì‚¬ì´ì¦ˆëŠ” ì„ íƒëœ ì§ì›ì˜ ìˆ˜
 					int idxSsn = 0;
 					while (iter_selectedSsn.hasNext()) {
 						updateSsn[idxSsn] = iter_selectedSsn.next();
 						idxSsn++;
 					}
-					//±¸¸§
+					
 					if (comboBox_update.getSelectedItem() == "Address") {
-						// update employee set address = textField.getText()
+
 						String uData = textField.getText();
 						String att = (String) comboBox_update.getSelectedItem();
 
@@ -569,7 +559,7 @@ public class testWB3 {
 						}
 
 					} else if (comboBox_update.getSelectedItem() == "Sex") {
-						// update employee set sex = textFiled.getText()
+
 						String uData = textField.getText();
 						String att = (String) comboBox_update.getSelectedItem();
 
@@ -595,16 +585,16 @@ public class testWB3 {
 					}
 				}
 
-				// °´Ã¼ »ı¼º + ¼öÁ¤¿¬»ê
+				// ê°ì²´ ìƒì„± + ìˆ˜ì •ì—°ì‚°
 
 			}
 		});
 		
 
-	} // initialize() ÇÔ¼ö ³¡
+	} // initialize() í•¨ìˆ˜ ë
 
-	// Å×ÀÌºíÀÇ checkbox ¿¡¼­ ¼±ÅÃµÈ rowÀÇ Ssn À» Ã£±â À§ÇÑ ÇÔ¼ö, ¸¸¾à¿¡ SsnÀÌ ¾øÀ¸¸é -1À» ¹İÈ¯. -1À» ¹İÈ¯¹ŞÀ¸¸é
-	// ¿¡·¯¸Ş½ÃÁö Ãâ·ÂÇÏ±â
+	// í…Œì´ë¸”ì˜ checkbox ì—ì„œ ì„ íƒëœ rowì˜ Ssn ì„ ì°¾ê¸° ìœ„í•œ í•¨ìˆ˜, ë§Œì•½ì— Ssnì´ ì—†ìœ¼ë©´ -1ì„ ë°˜í™˜. -1ì„ ë°˜í™˜ë°›ìœ¼ë©´
+	// ì—ëŸ¬ë©”ì‹œì§€ ì¶œë ¥í•˜ê¸°
 	private int getColumnIndex(JTable table, String header) {
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			if (table.getColumnName(i).equals(header)) {
@@ -614,9 +604,9 @@ public class testWB3 {
 		return -1;
 	}
 
-	// Å×ÀÌºí¿¡ checkbox ¸¦ ³Ö±â À§ÇÔ.
+	// í…Œì´ë¸”ì— checkbox ë¥¼ ë„£ê¸° ìœ„í•¨.
 	DefaultTableCellRenderer dcr = new DefaultTableCellRenderer() {
-		public Component getTableCellRendererComponent // ¼¿·»´õ·¯
+		public Component getTableCellRendererComponent // ì…€ë Œë”ëŸ¬
 		(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,int column){JCheckBox box=new JCheckBox();box.setSelected(((Boolean)value).booleanValue());box.setHorizontalAlignment(JLabel.CENTER);
 
 	box.addMouseListener(new MouseAdapter(){@Override public void mouseClicked(MouseEvent e){System.out.println("s");}});
@@ -625,22 +615,21 @@ public class testWB3 {
 	
 	
 	public void searching(ActionEvent e) {
-		String emptyText = ""; // textfield °¡ ºñ¾îÀÖ´ÂÁö ºñ±³ ¿ëµµ
-		// °Ë»ö ¹üÀ§¿¡¼­ textField ·Î ¹Ş¾Æ¿À´Â °æ¿ì
-		if (!textField_salary.getText().equals(emptyText)) { // salary textfield ¿¡ °ªÀÌ ÀÖÀ¸¸é where Àı ÀÛ¼º
+		String emptyText = ""; // textfield ê°€ ë¹„ì–´ìˆëŠ”ì§€ ë¹„êµ ìš©ë„
+		// ê²€ìƒ‰ ë²”ìœ„ì—ì„œ textField ë¡œ ë°›ì•„ì˜¤ëŠ” ê²½ìš°
+		if (!textField_salary.getText().equals(emptyText)) { // salary textfield ì— ê°’ì´ ìˆìœ¼ë©´ where ì ˆ ì‘ì„±
 			String salaryText = textField_salary.getText();
 			whereClause = " where e.Salary > " + salaryText;
-		} else if (!textField_sub.getText().equals(emptyText)) { // sub textfield ¿¡ °ªÀÌ ÀÖÀ¸¸é where Àı ÀÛ¼º
+		} else if (!textField_sub.getText().equals(emptyText)) { // sub textfield ì— ê°’ì´ ìˆìœ¼ë©´ where ì ˆ ì‘ì„±
 			String subText = textField_sub.getText();
 			whereClause = " where e.Super_ssn = '" + subText + "'";
 		}
 
-		System.out.println("°Ë»ö");
 
-		// °Ë»ö Ç×¸ñ ¹Ş¾Æ¿À´Â°Å ±¸ÇöÇÏ±â
-		int cntSelect = 0; // Ã¼Å©¹Ú½º °³¼ö (0ÀÏ ¶§¿¡´Â select + query ¿¡ ±×³É Ãß°¡ÇÏ°í, 0ÀÌ ¾Æ´Ï¸é " , " µµ Ãß°¡ÇØ¾ßµÊ
+		// ê²€ìƒ‰ í•­ëª© ë°›ì•„ì˜¤ëŠ”ê±° êµ¬í˜„í•˜ê¸°
+		int cntSelect = 0; // ì²´í¬ë°•ìŠ¤ ê°œìˆ˜ (0ì¼ ë•Œì—ëŠ” select + query ì— ê·¸ëƒ¥ ì¶”ê°€í•˜ê³ , 0ì´ ì•„ë‹ˆë©´ " , " ë„ ì¶”ê°€í•´ì•¼ë¨
 
-		if (chckbxSearchName.isSelected()) { // Name ÀÌ Ã¼Å©µÇ¸é ½ÇÇà
+		if (chckbxSearchName.isSelected()) { // Name ì´ ì²´í¬ë˜ë©´ ì‹¤í–‰
 			if (cntSelect != 0) {
 				selectStatement += ", ";
 			} else {
@@ -650,7 +639,7 @@ public class testWB3 {
 			selectStatement += "concat(e.Fname, IFNULL(e.Minit, \"\"), e.Lname) as Name";
 		}
 
-		if (chckbxSearchSsn.isSelected()) { // Ssn ÀÌ Ã¼Å©µÇ¸é ½ÇÇà
+		if (chckbxSearchSsn.isSelected()) { // Ssn ì´ ì²´í¬ë˜ë©´ ì‹¤í–‰
 			if (cntSelect != 0) {
 				selectStatement += ", ";
 			} else {
@@ -660,7 +649,7 @@ public class testWB3 {
 			selectStatement += "e.Ssn";
 		}
 
-		if (chckbxSearchBdate.isSelected()) { // Bdate °¡ Ã¼Å©µÇ¸é ½ÇÇà
+		if (chckbxSearchBdate.isSelected()) { // Bdate ê°€ ì²´í¬ë˜ë©´ ì‹¤í–‰
 			if (cntSelect != 0) {
 				selectStatement += ", ";
 			} else {
@@ -670,7 +659,7 @@ public class testWB3 {
 			selectStatement += "e.Bdate";
 		}
 
-		if (chckbxSearchAddress.isSelected()) { // Address °¡ Ã¼Å©µÇ¸é ½ÇÇà
+		if (chckbxSearchAddress.isSelected()) { // Address ê°€ ì²´í¬ë˜ë©´ ì‹¤í–‰
 			if (cntSelect != 0) {
 				selectStatement += ", ";
 			} else {
@@ -680,7 +669,7 @@ public class testWB3 {
 			selectStatement += "e.Address";
 		}
 
-		if (chckbxSearchSex.isSelected()) { // Sex °¡ Ã¼Å©µÇ¸é ½ÇÇà
+		if (chckbxSearchSex.isSelected()) { // Sex ê°€ ì²´í¬ë˜ë©´ ì‹¤í–‰
 			if (cntSelect != 0) {
 				selectStatement += ", ";
 			} else {
@@ -690,7 +679,7 @@ public class testWB3 {
 			selectStatement += "e.Sex";
 		}
 
-		if (chckbxSearchSalary.isSelected()) { // Salary °¡ Ã¼Å©µÇ¸é ½ÇÇà
+		if (chckbxSearchSalary.isSelected()) { // Salary ê°€ ì²´í¬ë˜ë©´ ì‹¤í–‰
 			if (cntSelect != 0) {
 				selectStatement += ", ";
 			} else {
@@ -700,7 +689,7 @@ public class testWB3 {
 			selectStatement += "e.Salary";
 		}
 
-		if (chckbxSearchSupervisor.isSelected()) { // Supervisor °¡ Ã¼Å©µÇ¸é ½ÇÇà
+		if (chckbxSearchSupervisor.isSelected()) { // Supervisor ê°€ ì²´í¬ë˜ë©´ ì‹¤í–‰
 			if (cntSelect != 0) {
 				selectStatement += ", ";
 			} else {
@@ -710,7 +699,7 @@ public class testWB3 {
 			selectStatement += "concat(s.Fname, IFNULL(s.Minit, \"\"), s.Lname) as Supervisor";
 		}
 
-		if (chckbxSearchDepartment.isSelected()) { // Department °¡ Ã¼Å©µÇ¸é ½ÇÇà
+		if (chckbxSearchDepartment.isSelected()) { // Department ê°€ ì²´í¬ë˜ë©´ ì‹¤í–‰
 			if (cntSelect != 0) {
 				selectStatement += ", ";
 			} else {
@@ -720,24 +709,24 @@ public class testWB3 {
 			selectStatement += "d.Dname as Department";
 		}
 
-		// Ã¼Å©¹Ú½º¿¡ µû¸¥ from Àı ¼³Á¤
+		// ì²´í¬ë°•ìŠ¤ì— ë”°ë¥¸ from ì ˆ ì„¤ì •
 
-		if (chckbxSearchSupervisor.isSelected() && chckbxSearchDepartment.isSelected()) { // °Ë»ö Ç×¸ñ¿¡ supervisor,
-																							// department µÑ ´Ù ÀÖÀ»
-																							// ¶§
+		if (chckbxSearchSupervisor.isSelected() && chckbxSearchDepartment.isSelected()) { // ê²€ìƒ‰ í•­ëª©ì— supervisor,
+																							// department ë‘˜ ë‹¤ ìˆì„
+																							// ë•Œ
 			fromStatement = " from EMPLOYEE as e left outer join EMPLOYEE as s on e.Super_ssn = s.Ssn join DEPARTMENT as d on e.Dno = d.Dnumber";
-		} else if (chckbxSearchSupervisor.isSelected()) { // °Ë»ö Ç×¸ñ¿¡ supervisor °¡ ÀÖÀ» ¶§
+		} else if (chckbxSearchSupervisor.isSelected()) { // ê²€ìƒ‰ í•­ëª©ì— supervisor ê°€ ìˆì„ ë•Œ
 			fromStatement = " from EMPLOYEE as e left outer join EMPLOYEE as s on e.Super_ssn = s.Ssn";
-		} else if (chckbxSearchDepartment.isSelected()) { // °Ë»ö Ç×¸ñ¿¡ department °¡ ÀÖÀ» ¶§
+		} else if (chckbxSearchDepartment.isSelected()) { // ê²€ìƒ‰ í•­ëª©ì— department ê°€ ìˆì„ ë•Œ
 			fromStatement = " from EMPLOYEE as e join DEPARTMENT as d on e.Dno = d.Dnumber";
-		} else { // °Ë»ö Ç×¸ñ¿¡ supervisor, department µÑ ´Ù ¾øÀ» ¶§
+		} else { // ê²€ìƒ‰ í•­ëª©ì— supervisor, department ë‘˜ ë‹¤ ì—†ì„ ë•Œ
 			fromStatement = " from EMPLOYEE as e";
 		}
 
-		// Ã¼Å©¹Ú½º¿¡ µû¸¥ string[] columns ¼³Á¤ (table ¸¸µé ¶§ column Çì´õ·Î »ç¿ë)
+		// ì²´í¬ë°•ìŠ¤ì— ë”°ë¥¸ string[] columns ì„¤ì • (table ë§Œë“¤ ë•Œ column í—¤ë”ë¡œ ì‚¬ìš©)
 		int columnCnt = 0;
 		selectAttribute = new String[cntSelect + 1];
-		selectAttribute[0] = "¼±ÅÃ";
+		selectAttribute[0] = "ì„ íƒ";
 		if (chckbxSearchName.isSelected()) {
 			columnCnt++;
 			selectAttribute[columnCnt] = "Name";
@@ -773,16 +762,16 @@ public class testWB3 {
 
 		selectStatement = selectStatement + fromStatement;
 
-		// °Ë»öÀ» ´Ù½ÃÇÏ¸é ¼±ÅÃÇÑ Á÷¿ø°ú ÀÎ¿ø ¼ö Ç¥½ÃÇØÁÖ´Â ¶óº§µµ ÃÊ±âÈ­
+		// ê²€ìƒ‰ì„ ë‹¤ì‹œí•˜ë©´ ì„ íƒí•œ ì§ì›ê³¼ ì¸ì› ìˆ˜ í‘œì‹œí•´ì£¼ëŠ” ë¼ë²¨ë„ ì´ˆê¸°í™”
 		selectedEmpLb.setVisible(false);
 		if (Arrays.asList(selectAttribute).contains("Name")) {
 			selectedEmpLb.setVisible(true);
 		}
-		selectedEmpLb.setText("¼±ÅÃÇÑ Á÷¿ø :");
-		selectedCountLb.setText("ÀÎ¿ø ¼ö :");
-		avgSalLb.setText("¼±ÅÃÇÑ Á÷¿ø Æò±Õ ÀÓ±İ : ");
+		selectedEmpLb.setText("ì„ íƒí•œ ì§ì› :");
+		selectedCountLb.setText("ì¸ì› ìˆ˜ :");
+		avgSalLb.setText("ì„ íƒí•œ ì§ì› í‰ê·  ì„ê¸ˆ : ");
 
-		// table ¸¸µé±â
+		// table ë§Œë“¤ê¸°
 		CompanyDB companyDB = new CompanyDB(selectStatement, whereClause, columnCnt + 1, password, selectAttribute);
 
 		int cntRowModel = tableModel.getRowCount();
@@ -794,71 +783,67 @@ public class testWB3 {
 
 		tableModel.setDataVector(companyDB.searchDB(), selectAttribute);
 
-		// checkBox »ı¼º
-		dataTable.getColumn("¼±ÅÃ").setCellRenderer(dcr);
+		// checkBox ìƒì„±
+		dataTable.getColumn("ì„ íƒ").setCellRenderer(dcr);
 		JCheckBox checkBox = new JCheckBox();
 		checkBox.setHorizontalAlignment(JLabel.CENTER);
 
-		// ¼±ÅÃÇÑ Á÷¿ø, ÀÎ¿ø ¼ö
-		selectedEmp = new LinkedHashSet<>(); // ¼±ÅÃµÈ Á÷¿ø Á¤º¸ ¶óº§¿¡ »ç¿ë
-		selectedSsn = new LinkedHashSet<>(); // delete, update ¿¬»ê ½Ã¿¡ »ç¿ë.
-		dataTable.getColumn("¼±ÅÃ").setCellEditor(new DefaultCellEditor(checkBox));
+		// ì„ íƒí•œ ì§ì›, ì¸ì› ìˆ˜
+		selectedEmp = new LinkedHashSet<>(); // ì„ íƒëœ ì§ì› ì •ë³´ ë¼ë²¨ì— ì‚¬ìš©
+		selectedSsn = new LinkedHashSet<>(); // delete, update ì—°ì‚° ì‹œì— ì‚¬ìš©.
+		dataTable.getColumn("ì„ íƒ").setCellEditor(new DefaultCellEditor(checkBox));
 		checkBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// ¼±ÅÃÇÑ ÇàÀÇ Ã¹¹øÂ° attribute ¹Ş±â
+				// ì„ íƒí•œ í–‰ì˜ ì²«ë²ˆì§¸ attribute ë°›ê¸°
 				String selected = dataTable.getValueAt(dataTable.getSelectedRow(), 1).toString();
 
-				// delete ¿¬»ê¿¡ ÀÎÀÚ·Î ³Ñ°ÜÁÙ Ssn ÀÌ ÀÖÀ¸¸é ½ÇÇà (¾øÀ¸¸é ¹«½ÃÇÏ°í delete ¹öÆ°À» ´©¸£¸é ¿¡·¯¸Ş¼¼Áö Ãâ·ÂÇÏ°Ô ÇÔ)
+				// delete ì—°ì‚°ì— ì¸ìë¡œ ë„˜ê²¨ì¤„ Ssn ì´ ìˆìœ¼ë©´ ì‹¤í–‰ (ì—†ìœ¼ë©´ ë¬´ì‹œí•˜ê³  delete ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ ì—ëŸ¬ë©”ì„¸ì§€ ì¶œë ¥í•˜ê²Œ í•¨)
 				if (getColumnIndex(dataTable, "Ssn") != -1) {
-					// getColumnIndex(): column header ¿¡ Ssn ÀÌ ¾øÀ¸¸é -1 ¹İÈ¯ --> exception ¹ß»ıÀ¸·Î
-					// selectedEssn Àº Á¤ÀÇµÇÁö ¾Ê°í selectedSsn hashset Àº ºñ¾îÀÖ°ÔµÊ (.isEmpty() == true)
+
 					String selectedEssn = dataTable
 							.getValueAt(dataTable.getSelectedRow(), getColumnIndex(dataTable, "Ssn"))
 							.toString();
 					if (selectedSsn.contains(selectedEssn)) {
 						selectedSsn.remove(selectedEssn);
-						System.out.println(selectedSsn.size());
 					} else {
 						selectedSsn.add(selectedEssn);
-						System.out.println(selectedSsn.size());
 					}
 				}
 
-				// ¼±ÅÃÇÑ Á÷¿øÀÌ ´©±¸ÀÎÁö ¶óº§¿¡ Ç¥½ÃÇÔ
+				// ì„ íƒí•œ ì§ì›ì´ ëˆ„êµ¬ì¸ì§€ ë¼ë²¨ì— í‘œì‹œí•¨
 				if (selectedEmp.contains(selected)) {
 					selectedEmp.remove(selected);
 				} else {
 					selectedEmp.add(selected);
 				}
 
-				// Æò±Õ ÀÓ±İ ¿¬»ê
+				// í‰ê·  ì„ê¸ˆ ì—°ì‚°
 				
+				
+					
 				CompanyDB companyDB = new CompanyDB(password);
 				float avg = companyDB.retAvgSal(selectedSsn);
-
-				if (checkBox.isSelected()) {
-
-				}
-
-				// Æò±ÕÀÓ±İ °ª label¿¡ Áı¾î ³Ö±â
-				avgSalLb.setText("¼±ÅÃÇÑ Á÷¿ø Æò±Õ ÀÓ±İ : + avg ");
-
+				
+				// í‰ê· ì„ê¸ˆ ê°’ labelì— ì§‘ì–´ ë„£ê¸°
+				avgSalLb.setText("ì„ íƒí•œ ì§ì› í‰ê·  ì„ê¸ˆ : " + avg);
+	
 				if (selectedEmp.isEmpty()) {
-					selectedEmpLb.setText("¼±ÅÃÇÑ Á÷¿ø : ");
-					selectedCountLb.setText("ÀÎ¿ø ¼ö : ");
-					avgSalLb.setText("¼±ÅÃÇÑ Á÷¿ø Æò±Õ ÀÓ±İ : ");
+					selectedEmpLb.setText("ì„ íƒí•œ ì§ì› : ");
+					selectedCountLb.setText("ì¸ì› ìˆ˜ : ");
+					avgSalLb.setText("ì„ íƒí•œ ì§ì› í‰ê·  ì„ê¸ˆ : ");
 					panel_1.revalidate();
 				} else {
-					selectedEmpLb.setText("¼±ÅÃÇÑ Á÷¿ø : " + selectedEmp);
-					selectedCountLb.setText("ÀÎ¿ø ¼ö :" + selectedEmp.size());
-					if (chckbxSearchSsn.isSelected()) {
-						avgSalLb.setText("¼±ÅÃÇÑ Á÷¿ø Æò±Õ ÀÓ±İ : " + avg);
-					} else {
-						avgSalLb.setText("¼±ÅÃÇÑ Á÷¿ø Æò±Õ ÀÓ±İ : °Ë»ö °á°ú Ç¥¿¡ SsnÀÌ Æ÷ÇÔµÇ¾î ÀÖÁö ¾ÊÀ¸¸é Ç¥±âµÇÁö ¾Ê½À´Ï´Ù.");
+					selectedEmpLb.setText("ì„ íƒí•œ ì§ì› : " + selectedEmp);
+					selectedCountLb.setText("ì¸ì› ìˆ˜ :" + selectedEmp.size());
+					if(Arrays.stream(selectAttribute).anyMatch(att -> att =="Ssn")) {
+					avgSalLb.setText("ì„ íƒí•œ ì§ì› í‰ê·  ì„ê¸ˆ : " + avg);
+					} else if(!Arrays.stream(selectAttribute).anyMatch(att -> att =="Ssn")){
+						avgSalLb.setText("ì„ íƒí•œ ì§ì› í‰ê·  ì„ê¸ˆ : ê²€ìƒ‰ ê²°ê³¼ í‘œì— Ssnì´ í¬í•¨ë˜ì–´ ìˆì§€ ì•Šìœ¼ë©´ í‘œê¸°ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
 					}
 					panel_1.revalidate();
 				}
+				
 
 			}
 		});

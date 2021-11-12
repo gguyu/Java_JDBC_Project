@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.ArrayList;
 
 public class CompanyDB {
 	private Connection con = null;  // connection 객체
@@ -26,7 +27,6 @@ public class CompanyDB {
 	private Object[][] searchResult;
 	private String[] attributes;
 	static HashSet<String> ssnResult;
-	
 	
 	// ResultSet 에서 개수 구해주는 method 가 없어서 행 개수 구하기 위한 쿼리를 따로 둠
 	private String getCountQuery = "select count(*), concat(e.Fname, e.Minit, e.Lname) as Name, e.Ssn, e.Bdate, e.Address, e.Sex, e.Salary, concat(s.Fname, s.Minit, s.Lname) as Supervisor, d.Dname as Department"
@@ -145,7 +145,7 @@ public class CompanyDB {
 				count_rows++;
 			}
 			
-			//System.out.println(ssnResult);
+
 			
 			
 			// 해제
@@ -185,8 +185,6 @@ public class CompanyDB {
 			con = DriverManager.getConnection(base_url,base_user,base_pwd);
 			System.out.println("정상적으로 연결되었습니다.");
 			
-			System.out.println("check: " + insertQuery);
-			
 			pstmt = con.prepareStatement(insertQuery);
 			pstmt.executeUpdate();
 			
@@ -198,6 +196,7 @@ public class CompanyDB {
 			while(rs.next()) {
 				ssnResult.add(rs.getString("Ssn").toString());
 			}
+			
 			
 			// 해제
 			rs.close();
@@ -229,7 +228,7 @@ public class CompanyDB {
 	}  // 삽입 연산 함수 끝 
 
 	
-	// 테이블 내 체크박스 구현되면 갱신문, 삭제문 만들기
+
 	
 	// 삭제 연산 함수
 	public void deleteDB() {
@@ -292,14 +291,14 @@ public class CompanyDB {
 				updateQuery = updateQueryForm; // att 이름이랑 값 바꿈, 한번마다 초기화
 				
 				if(att != "Salary") {
-					System.out.println(updateQuery);
+
 					updateQuery = updateQuery + att + "= '" + value + "'" + " where " + "Ssn = '" + updateEssn[cntUpdate] + "';" ;
-					System.out.println(updateQuery);
+
 				}
 				
 				else {
 					updateQuery = updateQuery + att + "= '" + value + "' " + " where " + "Ssn = " + updateEssn[cntUpdate] + ";" ; // 샐러리는 필요 없음.
-					System.out.println(updateQuery);
+
 				}
 				
 				pstmt = con.prepareStatement(updateQuery);
@@ -324,7 +323,7 @@ public class CompanyDB {
 	}
     
     // 선택된 직원 평균 임금 연산, sum 값을 쿼리 받아서 사이즈를 줄이기
-    public float retAvgSal(Set<String> ssnSet) { //구름
+    public float retAvgSal(Set<String> ssnSet) {
 		float avg = 0;
 		ResultSet rs;
         
@@ -350,13 +349,12 @@ public class CompanyDB {
 			
 			avgQuery = avgQuery + ";";
 			
-			System.out.println(avgQuery);
 			
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(avgQuery);
 			
 			if(rs.next()) {
-				avg = rs.getFloat("SUM")/ssnSet.size();  // 임금합을 선택된 숫자로 나누어 평균 구하기
+				avg = rs.getFloat("SUM")/ssnSet.size(); // 임금합을 선택된 숫자로 나누어 평균
 			}
 			stmt.close();
 			rs.close();
@@ -366,7 +364,35 @@ public class CompanyDB {
 			e.printStackTrace();
 		}
 		
+		
 		return avg;
 	}
+    
+    
+    public ArrayList<Integer> getDnoList() {
+    	ArrayList<Integer> arrInt = new ArrayList<Integer>();
+    	
+    	try {
+    		con = DriverManager.getConnection(base_url,base_user,base_pwd);
+			System.out.println("정상적으로 연결되었습니다.");
+			
+			String getdnoQuery = "select Dnumber from department order by Dnumber ASC;";
+			
+			stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(getdnoQuery);
+			
+			while(rs.next()) {
+				arrInt.add(rs.getInt(1));
+			}
+			
+    	}catch(SQLException e) {
+    		e.printStackTrace();
+    	}
+    	
+    	return arrInt;
+    	
+    }
+    
+    
 	
 }
