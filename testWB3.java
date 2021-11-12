@@ -12,8 +12,10 @@ import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.regex.Pattern;
 
 public class testWB3 {
 
@@ -35,10 +37,14 @@ public class testWB3 {
 	private DefaultTableModel tableModel;
 	private Set<String> selectedEmp, selectedSsn;
 	
+	// 검색 예외처리용
+	private HashSet<String> ssnResult = CompanyDB.ssnResult;
+	
 	// 삭제 예외처리용
 	private HashSet<String> employee_Super_ssnResult = CompanyDB.employee_Super_ssnResult;
 	private HashSet<String> department_Mgr_ssnResult = CompanyDB.department_Mgr_ssnResult;
 	private HashSet<String> works_onEssnResult = CompanyDB.works_onEssnResult;
+	
 
 	// MySQL 로그인 기능
 	private String password = "root"; // 비밀번호 선택 창 입력안하고 끄면 우선 default 로 root
@@ -52,6 +58,7 @@ public class testWB3 {
 	private JCheckBox chckbxSearchSalary;
 	private JCheckBox chckbxSearchSupervisor;
 	private JCheckBox chckbxSearchDepartment;
+	
 	
 	// Login 창 띄우기
 	private void loginFrame() {
@@ -155,6 +162,8 @@ public class testWB3 {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
+		
 		frame = new JFrame();
 		frame.getContentPane().setForeground(SystemColor.desktop);
 		frame.setBounds(100, 100, 1002, 512);
@@ -419,6 +428,7 @@ public class testWB3 {
 		chckbxSearchDepartment.setSelected(true);
 		chckbxSearchDepartment.setBounds(541, 46, 107, 23);
 		panel.add(chckbxSearchDepartment);
+		
 
 		// 검색 버튼 구현
 		btnSearch = new JButton("검색");
@@ -633,8 +643,8 @@ public class testWB3 {
 
 			}
 		});
-		
-
+		CompanyDB initcompanyDB = new CompanyDB(password);
+		initcompanyDB.getSsn();
 	} // initialize() 함수 끝
 
 	// 테이블의 checkbox 에서 선택된 row의 Ssn 을 찾기 위한 함수, 만약에 Ssn이 없으면 -1을 반환. -1을 반환받으면
@@ -660,14 +670,36 @@ public class testWB3 {
 	
 	public void searching(ActionEvent e) {
 		String emptyText = ""; // textfield 가 비어있는지 비교 용도
+		ssnResult = CompanyDB.ssnResult;
 		// 검색 범위에서 textField 로 받아오는 경우
 		if (!textField_salary.getText().equals(emptyText)) { // salary textfield 에 값이 있으면 where 절 작성
+			if(!textField_salary.getText().equals(emptyText) && !Pattern.matches("^(\\d){1,10}(\\.(\\d)(\\d)?)?$", textField_salary.getText())) {
+				JOptionPane.showMessageDialog(frame, "연봉을 숫자로 입력하세요. 10자 이하(+ 소수점 둘째자리까지 가능)로 입력하세요.(연봉)", "ERROR",
+						JOptionPane.ERROR_MESSAGE);  // Salary 는 Decimal(10, 2);
+				return;
+				
+			}
 			String salaryText = textField_salary.getText();
 			whereClause = " where e.Salary > " + salaryText;
 		} else if(comboBox_searchRange.getSelectedItem() == "연봉" && textField_salary.getText().equals(emptyText)) {
 			whereClause = " where e.Salary > 0"; 
-		} 
-		else if (!textField_sub.getText().equals(emptyText)) { // sub textfield 에 값이 있으면 where 절 작성
+		} else if (!textField_sub.getText().equals(emptyText)) { // sub textfield 에 값이 있으면 where 절 작성
+			if (!Pattern.matches("^[0-9]*$", textField_sub.getText())) {
+				JOptionPane.showMessageDialog(frame, "9자리 숫자를 입력하세요. (부하직원)", "ERROR",
+						JOptionPane.ERROR_MESSAGE);  // Ssn은 숫자만 가능
+				return;
+				
+			}else if(textField_sub.getText().toString().length() != 9) {
+				JOptionPane.showMessageDialog(frame, "9자리 숫자를 입력하세요. (부하직원)", "ERROR",
+						JOptionPane.ERROR_MESSAGE);  // Ssn은 CHAR(9)
+				return;
+				
+			} else if(!ssnResult.contains(textField_sub.getText())) {
+				JOptionPane.showMessageDialog(frame, "입력한 Ssn 을 갖는 직원이 없습니다. (부하직원)", "ERROR",
+						JOptionPane.ERROR_MESSAGE);  // Ssn primary key
+				return;
+			}
+			
 			String subText = textField_sub.getText();
 			whereClause = " where e.Super_ssn = '" + subText + "'";
 		}

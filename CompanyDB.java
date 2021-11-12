@@ -63,6 +63,7 @@ public class CompanyDB {
 	public CompanyDB() {
 		
 	}
+	
 	// 삽입문 생성자
 	public CompanyDB(String insertQuery, String password) {
 		this.insertQuery = insertQuery;
@@ -90,6 +91,42 @@ public class CompanyDB {
 		this.base_pwd = password;
 	}
 	
+	// 검색 예외처리를 위한 ssn 받아오기
+	public void getSsn() {
+		ResultSet rs;
+		try {
+			// url 과 사용자, 비밀번호로 Connection 객체 생성
+			con = DriverManager.getConnection(base_url,base_user,base_pwd);
+			System.out.println("정상적으로 연결되었습니다.");
+			stmt = con.createStatement();
+			rs = stmt.executeQuery("select Ssn from EMPLOYEE");
+			
+			ssnResult = new HashSet<>();
+			while(rs.next()) {
+				ssnResult.add(rs.getString("Ssn").toString());
+			}
+			
+			// 해제
+			rs.close();
+			stmt.close();
+			
+		}catch (SQLException e) {  // connection 객체를 생성할 수 없을 때
+			System.err.println("연결할 수 없습니다.");
+			e.printStackTrace();
+			
+			
+		}
+		
+		// 해제
+		try {
+			if (con != null) {
+				con.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
 	
 	// 검색 질의 함수
 	public Object[][] searchDB() {
