@@ -63,7 +63,6 @@ public class CompanyDB {
 	public CompanyDB() {
 		
 	}
-	
 	// 삽입문 생성자
 	public CompanyDB(String insertQuery, String password) {
 		this.insertQuery = insertQuery;
@@ -183,7 +182,7 @@ public class CompanyDB {
 			}
 			
 			// 예외처리용
-			// employee의 ssn을 참조하고 있는 것들을 확인하기 (gui에서 delete할 때 이용할 목적
+			// employee의 ssn을 참조하고 있는 것들을 확인하기 (gui에서 delete할 때 이용할 목적)
 			works_onEssnResult = new HashSet<String>();
 			rs = stmt.executeQuery("select Essn from WORKS_ON");
 			while(rs.next()) {
@@ -209,7 +208,6 @@ public class CompanyDB {
 			rs.close();
 			stmt.close();
 			
-		
 		} catch (SQLException e) {  // connection 객체를 생성할 수 없을 때
 			System.err.println("연결할 수 없습니다.");
 			e.printStackTrace();
@@ -336,26 +334,25 @@ public class CompanyDB {
 			
 			String updateQuery;
 			
-			// salary가 들어온 경우 value가 숫자인가 확인하는 작업
-			if (att == ("Salary")&&!value.matches("[+-]?\\d*(\\.\\d+)?")) {
-				Exception e = new Exception("숫자만 입력해주세요!");
-				
-				throw e;
-			}
-			
 			int cntUpdate = 0;
 			while (cntUpdate < cntEssn) {
 				updateQuery = updateQueryForm; // att 이름이랑 값 바꿈, 한번마다 초기화
 				
 				if(att != "Salary") {
-
-					updateQuery = updateQuery + att + "= '" + value + "'" + " where " + "Ssn = '" + updateEssn[cntUpdate] + "';" ;
-
+					if(value.equals("")) {
+						updateQuery = updateQuery + att + " = null" + " where " + "Ssn = " + updateEssn[cntUpdate] + ";" ;
+					}else {
+						updateQuery = updateQuery + att + "= '" + value + "'" + " where " + "Ssn = '" + updateEssn[cntUpdate] + "';" ;
+					}
 				}
 				
 				else {
-					updateQuery = updateQuery + att + "= '" + value + "' " + " where " + "Ssn = " + updateEssn[cntUpdate] + ";" ; // 샐러리는 필요 없음.
-
+					if(value.equals("")) {
+						updateQuery = updateQuery + att + " = null" + " where " + "Ssn = " + updateEssn[cntUpdate] + ";" ; // 샐러리는 필요 없음.
+					}
+					else {
+						updateQuery = updateQuery + att + "= '" + value + "' " + " where " + "Ssn = " + updateEssn[cntUpdate] + ";" ; // 샐러리는 필요 없음.
+					}
 				}
 				
 				pstmt = con.prepareStatement(updateQuery);
@@ -367,12 +364,6 @@ public class CompanyDB {
 			return eString;
 		}
 		catch (SQLException e) {
-			eString = e.getMessage();
-			e.printStackTrace();
-			return eString;
-		}
-		
-		catch (Exception e) {
 			eString = e.getMessage();
 			e.printStackTrace();
 			return eString;
@@ -450,6 +441,85 @@ public class CompanyDB {
     	
     }
     
+    public float getSupSal(String supSsn) {
+    	Float supSal = (float) 0;
+    	
+    	try {
+    		con = DriverManager.getConnection(base_url,base_user,base_pwd);
+			System.out.println("정상적으로 연결되었습니다.");
+			
+			String getSupSalQuery = "select Salary from employee where ssn =" + supSsn + ";";
+			
+			stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(getSupSalQuery);
+			
+			if(rs.next()) {
+				supSal = rs.getFloat(1);
+			}
+			
+    	}catch(SQLException e) {
+    		e.printStackTrace();
+    	}
+    	
+    	return supSal;
+    	
+    }
+    // 상사 Ssn 받아오는 함수
+    public String getSupSsn(String Ssn) {
+    	String supSsn = "";
+    	
+    	try {
+    		con = DriverManager.getConnection(base_url,base_user,base_pwd);
+			System.out.println("정상적으로 연결되었습니다.");
+			
+			String getSupSsnQuery = "select Super_ssn from employee where ssn =" + Ssn + ";";
+			
+			stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(getSupSsnQuery);
+			
+			if(rs.next()) {
+				supSsn = rs.getString(1);
+			}
+			
+    	}catch(SQLException e) {
+    		e.printStackTrace();
+    	}
+    	
+    	return supSsn;
+    	
+    }
     
+    public Float getMaxSupvisedSal(String essn){
+    	float maxSupervisedSal = 0;
+    	
+    	try {
+    		con = DriverManager.getConnection(base_url,base_user,base_pwd);
+			System.out.println("정상적으로 연결되었습니다.");
+			
+			String getSupSsnQuery = "select salary from employee where Super_ssn =" + essn + ";";
+			
+			stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(getSupSsnQuery);
+			
+			while(rs.next()){
+				String tmpSal = rs.getString(1);
+				
+				if (tmpSal == null) {
+					return maxSupervisedSal;
+				}
+				
+				else if(maxSupervisedSal < Float.parseFloat(tmpSal)) {
+					maxSupervisedSal = rs.getFloat(1);
+				}
+			}
+			
+			return maxSupervisedSal;
+			
+    	}catch(SQLException e) {
+    		e.printStackTrace();
+    	}
+    	
+    	return maxSupervisedSal;
+    }
 	
 }

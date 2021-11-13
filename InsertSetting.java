@@ -73,6 +73,7 @@ public class InsertSetting {
         
         // Dno 값을 먼저 가져옴
 		CompanyDB companyDB_getDno = new CompanyDB(password);
+        CompanyDB companyDB = new CompanyDB(password);
 		ArrayList<Integer> dnoList = companyDB_getDno.getDnoList();
 		String dnoSet = "(";
 		
@@ -428,6 +429,10 @@ public class InsertSetting {
 				}else if(!textField_insertSalary.getText().equals(emptyText) && !Pattern.matches("^(\\d){1,10}(\\.(\\d)(\\d)?)?$", textField_insertSalary.getText())) {
 					JOptionPane.showMessageDialog(frame, "연봉을 숫자로 입력하세요. 10자 이하(+ 소수점 둘째자리까지 가능)로 입력하세요.(Salary)", "ERROR",
 							JOptionPane.ERROR_MESSAGE);  // Salary 는 Decimal(10, 2);
+					
+				}else if(!textField_insertSalary.getText().equals(emptyText) && Float.parseFloat(textField_insertSalary.getText()) >= companyDB.getSupSal(textField_insertSup_ssn.getText())){
+					JOptionPane.showMessageDialog(frame, "본인의 연봉은 상사보다 적어야 합니다. (Super_Salary) 입력하신 상사의 월급은 : " + String.valueOf(companyDB.getSupSal(textField_insertSup_ssn.getText())) + " 입니다.", "ERROR",
+							JOptionPane.ERROR_MESSAGE);  // 본인의 연봉을 입력한 경우 상사의 연봉보다 작아야 됨
 					
 				}else if(!textField_insertSup_ssn.getText().equals(emptyText) && textField_insertSup_ssn.getText().toString().length() != 9) {  // Super_ssn 이 빈칸이면 상관X
 					JOptionPane.showMessageDialog(frame, "9자리 숫자를 입력하세요.(Super_ssn)", "ERROR",
