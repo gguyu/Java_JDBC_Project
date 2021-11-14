@@ -182,7 +182,7 @@ public class CompanyDB {
 			}
 			
 			// 예외처리용
-			// employee의 ssn을 참조하고 있는 것들을 확인하기 (gui에서 delete할 때 이용할 목적)
+			// employee의 ssn을 참조하고 있는 것들을 확인하기 (gui에서 delete할 때 이용할 목적
 			works_onEssnResult = new HashSet<String>();
 			rs = stmt.executeQuery("select Essn from WORKS_ON");
 			while(rs.next()) {
@@ -441,7 +441,7 @@ public class CompanyDB {
     	
     }
     
-    public float getSupSal(String supSsn) {
+    public float getSal(String supSsn) {
     	Float supSal = (float) 0;
     	
     	try {

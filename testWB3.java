@@ -185,7 +185,7 @@ public class testWB3 {
 		JComboBox comboBox_department = new JComboBox();
 		comboBox_department
 				.setModel(new DefaultComboBoxModel(new String[] { "Research", "Administration", "Headquarters" }));
-		comboBox_department.setBounds(150, 16, 107, 23);
+		comboBox_department.setBounds(183, 16, 107, 23);
 		panel.add(comboBox_department);
 		comboBox_department.setVisible(false);
 
@@ -204,7 +204,7 @@ public class testWB3 {
 		// 성별
 		JComboBox comboBox_sex = new JComboBox();
 		comboBox_sex.setModel(new DefaultComboBoxModel(new String[] { "M", "F" }));
-		comboBox_sex.setBounds(265, 16, 53, 23);
+		comboBox_sex.setBounds(183, 16, 53, 23);
 		panel.add(comboBox_sex);
 		comboBox_sex.setVisible(false);
 
@@ -220,7 +220,7 @@ public class testWB3 {
 
 		// 연봉
 		textField_salary = new JTextField();
-		textField_salary.setBounds(330, 17, 116, 21);
+		textField_salary.setBounds(183, 17, 116, 21);
 		panel.add(textField_salary);
 		textField_salary.setColumns(10);
 		textField_salary.setVisible(false);
@@ -229,7 +229,7 @@ public class testWB3 {
 		JComboBox comboBox_bdate = new JComboBox();
 		comboBox_bdate.setModel(new DefaultComboBoxModel(
 				new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }));
-		comboBox_bdate.setBounds(458, 16, 47, 23);
+		comboBox_bdate.setBounds(183, 16, 47, 23);
 		panel.add(comboBox_bdate);
 		comboBox_bdate.setVisible(false);
 
@@ -281,7 +281,7 @@ public class testWB3 {
 
 		// 부하직원
 		textField_sub = new JTextField();
-		textField_sub.setBounds(517, 17, 123, 21);
+		textField_sub.setBounds(183, 17, 123, 21);
 		panel.add(textField_sub);
 		textField_sub.setColumns(10);
 		textField_sub.setVisible(false);
@@ -291,7 +291,7 @@ public class testWB3 {
 
 		// 전체 => 콤보박스 X / 부서, 성별, 생일 => 콤보박스 O / 연봉, 부하직원 => 입력칸 O
 		comboBox_searchRange.setModel(new DefaultComboBoxModel(new String[] { "전체", "부서", "성별", "연봉", "생일", "부하직원" }));
-		comboBox_searchRange.setBounds(69, 16, 72, 23);
+		comboBox_searchRange.setBounds(69, 16, 102, 23);
 		panel.add(comboBox_searchRange);
 
 		comboBox_searchRange.addActionListener(new ActionListener() {
@@ -590,11 +590,9 @@ public class testWB3 {
 							JOptionPane.ERROR_MESSAGE);
 				} else {
 					Iterator<String> iter_selectedSsn = selectedSsn.iterator();
-					String[] updateSsn = new String[cntUpdateSsn]; // 배열 사이즈는 선택된 직원의 수
-					int idxSsn = 0;
+					ArrayList<String> updateSsn = new ArrayList<String>(); // 배열 사이즈는 선택된 직원의 수
 					while (iter_selectedSsn.hasNext()) {
-						updateSsn[idxSsn] = iter_selectedSsn.next();
-						idxSsn++;
+						updateSsn.add(iter_selectedSsn.next());
 					}
 					
 					if (comboBox_update.getSelectedItem() == "Address") {
@@ -606,16 +604,15 @@ public class testWB3 {
 							JOptionPane.showMessageDialog(frame, "주소가 너무 깁니다. 30자 이하로 입력하세요.(Address)", "ERROR",
 									JOptionPane.ERROR_MESSAGE);
 						}else {
-							CompanyDB companyDB = new CompanyDB(updateSsn, cntUpdateSsn, password, stat);
+							CompanyDB companyDB = new CompanyDB(updateSsn.toArray(new String[updateSsn.size()]), cntUpdateSsn, password, stat);
 							eMessage = companyDB.updateDB(att, uData);
 						}
 						
 						if(eMessage == "") {
-							JOptionPane.showMessageDialog(frame, "데이터가 갱신되었습니다.");
-							textField.setText("");	
+							JOptionPane.showMessageDialog(frame, "데이터가 갱신되었습니다. 적용된 결과는 새로 검색 시 나타납니다.");
+							textField.setText("");
 						}
 						
-
 					} else if (comboBox_update.getSelectedItem() == "Sex") {
 
 						String uData = textField.getText();
@@ -629,13 +626,13 @@ public class testWB3 {
 							
 							eMessage = "Doesn't meet the condition. (Sex)";
 						}else {
-							CompanyDB companyDB = new CompanyDB(updateSsn, cntUpdateSsn, password, stat);
+							CompanyDB companyDB = new CompanyDB(updateSsn.toArray(new String[updateSsn.size()]), cntUpdateSsn, password, stat);
 							eMessage = companyDB.updateDB(att, uData);
 						}
 						
 						if(eMessage == "") {
-							JOptionPane.showMessageDialog(frame, "데이터가 갱신되었습니다.");
-							textField.setText("");	
+							JOptionPane.showMessageDialog(frame, "데이터가 갱신되었습니다. 적용된 결과는 새로 검색 시 나타납니다.");
+							textField.setText("");
 						}
 
 					}else if (comboBox_update.getSelectedItem() == "Salary") {
@@ -643,21 +640,26 @@ public class testWB3 {
 						String att = (String) comboBox_update.getSelectedItem();
 						
 						if (!uData.equals("") && !uData.matches("[+-]?\\d*(\\.\\d+)?")) {
+							eMessage = "연봉을 숫자로 입력하세요. 10자 이하(+ 소수점 둘째자리까지 가능)로 입력하세요.(Salary)";
 							JOptionPane.showMessageDialog(frame, "연봉을 숫자로 입력하세요. 10자 이하(+ 소수점 둘째자리까지 가능)로 입력하세요.(Salary)", "ERROR",
 									JOptionPane.ERROR_MESSAGE);
-							return;
 						}
 						CompanyDB companyDBSal = new CompanyDB(password);
 						
-						ArrayList<String> tmpSsn = new ArrayList(Arrays.asList(updateSsn));
+						ArrayList<String> tmpSsn = (ArrayList<String>) updateSsn.clone();
 						
 						float maxSupervisedSal = 0;
 						
 						for(String Ssn : updateSsn) {
 							maxSupervisedSal = companyDBSal.getMaxSupvisedSal(Ssn);
 							
+							if(updateSsn.contains(companyDBSal.getSupSsn(Ssn))) {
+								eMessage = "부하직원과 직속 상사의 연봉을 동시에 같은 값으로 설정할 수 없습니다. 다른 직원을 선택해주세요.";
+								tmpSsn.remove(Ssn);
+							}
+							
 							if(!uData.equals("") && companyDBSal.getSupSsn(Ssn) != null) {
-								if(Float.parseFloat(uData) >= companyDBSal.getSupSal(companyDBSal.getSupSsn(Ssn)) || Float.parseFloat(uData) < maxSupervisedSal) {
+								if(Float.parseFloat(uData) >= companyDBSal.getSal(companyDBSal.getSupSsn(Ssn)) || Float.parseFloat(uData) < maxSupervisedSal) {
 									tmpSsn.remove(Ssn);
 								}
 								
@@ -672,13 +674,19 @@ public class testWB3 {
 						
 						}
 						
-						if(tmpSsn.size() != updateSsn.length) {
+						if(tmpSsn.size() != updateSsn.size()) {
 							if (tmpSsn.size() ==0) {
 								eMessage = "직원의 연봉은 부하직원보다는 높고, 상사보다는 낮아야 합니다. 값을 다시 입력해주세요.";
 							}else {
-								JOptionPane.showMessageDialog(frame, "직원의 연봉은 부하직원보다는 높고, 상사보다는 낮아야 합니다. 해당 조건을 만족하는 직원(SSN : " + tmpSsn + ") 만 연봉이 갱신됩니다.", "ERROR",
-										JOptionPane.ERROR_MESSAGE);
-								
+								if(eMessage == "부하직원과 직속 상사의 연봉을 동시에 같은 값으로 설정할 수 없습니다. 다른 직원을 선택해주세요.") {
+									JOptionPane.showMessageDialog(frame, "부하직원과 직속 상사의 연봉을 동시에 같은 값으로 설정할 수 없습니다. 다음 직원(SSN : " + tmpSsn + ") 만 연봉이 갱신됩니다.", "ERROR",
+											JOptionPane.ERROR_MESSAGE);
+								}
+								else {
+									JOptionPane.showMessageDialog(frame, "직원의 연봉은 부하직원보다는 높고, 상사보다는 낮아야 합니다. 해당 조건을 만족하는 직원(SSN : " + tmpSsn + ") 만 연봉이 갱신됩니다.", "ERROR",
+											JOptionPane.ERROR_MESSAGE);
+                                    searching(e);
+								}
 								CompanyDB companyDB = new CompanyDB(tmpSsn.toArray(new String[tmpSsn.size()]), tmpSsn.size(), password, stat);
 								eMessage = companyDB.updateDB(att, uData);
 							}	
@@ -694,12 +702,11 @@ public class testWB3 {
 						}else {
 							JOptionPane.showMessageDialog(frame, "데이터가 갱신되었습니다.");
 							textField.setText("");
+                            searching(e);
 						}
                     }
 				}
-
 				// 객체 생성 + 수정연산
-
 			}
 		});
 		
@@ -749,7 +756,9 @@ public class testWB3 {
 		}else if(comboBox_searchRange.getSelectedItem() == "연봉" && textField_salary.getText().equals(emptyText)) {
 			whereClause = " where e.Salary > 0";
 			
-		}else if (!textField_sub.getText().equals(emptyText)) { // sub textfield 에 값이 있으면 where 절 작성
+		}
+		
+		if (!textField_sub.getText().equals(emptyText)) { // sub textfield 에 값이 있으면 where 절 작성
 			if (!Pattern.matches("^[0-9]*$", textField_sub.getText())) {
 				JOptionPane.showMessageDialog(frame, "9자리 숫자를 입력하세요. (부하직원)", "ERROR",
 						JOptionPane.ERROR_MESSAGE);  // Ssn은 숫자만 가능
@@ -767,8 +776,12 @@ public class testWB3 {
 			}
 			
 			String subText = textField_sub.getText();
-			whereClause = " where e.Super_ssn = '" + subText + "'";
+			whereClause = " where e.Super_ssn = '" + subText + "'";	
 			
+		}
+		
+		if(comboBox_searchRange.getSelectedItem() == "부하직원" && textField_sub.getText().equals(emptyText)) { // textfield 입력하지 않았을 때, 상사가 없는 직원 table 출력.
+			whereClause = " where e.Super_ssn is NULL";	
 		}
 
 
